@@ -21,6 +21,7 @@ val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
 
+//Logo Circle 丸いロゴ
 @Composable
 fun LogoCircle(size: Dp) {
     Box(
@@ -36,6 +37,7 @@ fun LogoCircle(size: Dp) {
     }
 }
 
+//Auth Text Field 入力欄
 @Composable
 fun AuthTextField(placeholder: String, value: String, onValueChange: (String) -> Unit) {
     TextField(
@@ -56,6 +58,7 @@ fun AuthTextField(placeholder: String, value: String, onValueChange: (String) ->
     )
 }
 
+//Auth Button ボタン作成
 @Composable
 fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Button(

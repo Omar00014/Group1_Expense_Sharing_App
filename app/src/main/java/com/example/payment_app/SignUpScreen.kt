@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+//Managing Input Values 入力内容を管理
 @Composable
 fun SignUpScreen() {
     var fullName by remember { mutableStateOf("") }
@@ -21,6 +22,7 @@ fun SignUpScreen() {
     var password by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
 
+    // Overall Screen Layout 画面全体のレイアウト
     Column(
         modifier = Modifier
             .fillMaxSize()
