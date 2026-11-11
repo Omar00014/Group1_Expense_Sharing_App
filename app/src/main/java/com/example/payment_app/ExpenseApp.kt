@@ -15,6 +15,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.payment_app.ui.screens.ActivityScreen
+import com.example.payment_app.ui.screens.GroupsScreen
+import com.example.payment_app.ui.screens.HomeScreen
+import com.example.payment_app.ui.screens.ProfileScreen
 
 
 @Composable
