@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Payment_App" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Dark parent so the window isn't white for a moment while the app starts -->
+    <style name="Theme.Payment_App" parent="android:Theme.Material.NoActionBar" />
+
 </resources>
