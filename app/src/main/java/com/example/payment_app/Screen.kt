@@ -21,3 +21,12 @@ sealed class Screen(
         val bottomNavItems = listOf(Home, Groups, Activity, Profile)
     }
 }
+
+object ProfileRoutes {
+    const val HOME = "profile_home"
+    const val EDIT = "profile_edit"
+    const val NOTIFICATIONS = "profile_notifications"
+
+    /** Destinations that hide the bottom navigation bar. */
+    val fullScreenRoutes = setOf(EDIT, NOTIFICATIONS)
+}
