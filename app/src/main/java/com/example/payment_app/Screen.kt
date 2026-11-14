@@ -30,3 +30,14 @@ object ProfileRoutes {
     /** Destinations that hide the bottom navigation bar. */
     val fullScreenRoutes = setOf(EDIT, NOTIFICATIONS)
 }
+
+object ExpenseRoutes {
+    const val CHOOSE_GROUP = "expense_choose_group"
+    const val ADD = "expense_add"
+    const val SPLIT = "expense_split"
+    const val DETAILS = "expense_details"
+    const val EDIT = "expense_edit"
+
+    /** Destinations that hide the bottom navigation bar. */
+    val fullScreenRoutes = setOf(CHOOSE_GROUP, ADD, SPLIT, DETAILS, EDIT)
+}

@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,14 @@ import com.example.payment_app.ui.screens.ActivityScreen
 import com.example.payment_app.ui.screens.GroupsScreen
 import com.example.payment_app.ui.screens.HomeScreen
 import com.example.payment_app.ui.screens.ProfileScreen
+import com.example.payment_app.ui.screens.expense.AddExpenseScreen
+import com.example.payment_app.ui.screens.expense.EditExpenseScreen
+import com.example.payment_app.ui.screens.expense.ExpenseDetailsScreen
+import com.example.payment_app.ui.screens.expense.ExpenseGroup
+import com.example.payment_app.ui.screens.expense.ExpenseItem
+import com.example.payment_app.ui.screens.expense.ExpenseMockData
+import com.example.payment_app.ui.screens.expense.SplitExpenseScreen
+import com.example.payment_app.ui.screens.expense.calculateNetBalanceForMember
 import com.example.payment_app.ui.screens.profile.Currency
 import com.example.payment_app.ui.screens.profile.EditProfileScreen
 import com.example.payment_app.ui.screens.profile.NotificationSettings
@@ -51,7 +60,15 @@ fun ExpenseApp() {
         mutableStateOf(NotificationSettings())
     }
 
-    val showBottomBar = ProfileRoutes.fullScreenRoutes.none { it == currentDestination?.route }
+    var groups by remember { mutableStateOf(ExpenseMockData.sampleGroups) }
+    var expenses by remember { mutableStateOf(ExpenseMockData.initialExpenses) }
+    var selectedGroup by remember { mutableStateOf<ExpenseGroup?>(null) }
+    var activeExpenseItem by remember { mutableStateOf<ExpenseItem?>(null) }
+
+    val johnNetBalance = calculateNetBalanceForMember(ExpenseMockData.john.id, expenses)
+
+    val fullScreenRoutes = ProfileRoutes.fullScreenRoutes + ExpenseRoutes.fullScreenRoutes
+    val showBottomBar = fullScreenRoutes.none { it == currentDestination?.route }
 
     Scaffold(
         bottomBar = {
@@ -84,15 +101,84 @@ fun ExpenseApp() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) { HomeScreen() }
+            composable(Screen.Home.route) {
+                HomeScreen(
+                    currentUserId = ExpenseMockData.john.id,
+                    groups = groups,
+                    expenses = expenses,
+                    onGroupSelectedForAdd = { grp ->
+                        selectedGroup = grp
+                        navController.navigate(ExpenseRoutes.ADD)
+                    },
+                    onExpenseSelected = { item ->
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.DETAILS)
+                    }
+                )
+            }
             composable(Screen.Groups.route) { GroupsScreen() }
             composable(Screen.Activity.route) { ActivityScreen() }
 
-            // Profile tab: nested graph so the tab stays highlighted on sub-screens
+            // Expense Flow Screens
+            composable(ExpenseRoutes.ADD) {
+                AddExpenseScreen(
+                    initialGroup = selectedGroup ?: ExpenseMockData.weekendTripGroup,
+                    groups = groups,
+                    members = ExpenseMockData.allMembers,
+                    onContinueToSplit = { item ->
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.SPLIT)
+                    },
+                    onSaveDraft = { item ->
+                        expenses = expenses + item
+                        navController.popBackStack(Screen.Home.route, inclusive = false)
+                    },
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.SPLIT) {
+                SplitExpenseScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    onConfirmSplit = { item ->
+                        expenses = expenses.filter { it.id != item.id } + item
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.DETAILS) {
+                            popUpTo(Screen.Home.route)
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.DETAILS) {
+                ExpenseDetailsScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    onEditExpense = { navController.navigate(ExpenseRoutes.EDIT) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.EDIT) {
+                EditExpenseScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    groups = groups,
+                    members = ExpenseMockData.allMembers,
+                    onSave = { updated ->
+                        expenses = expenses.map { if (it.id == updated.id) updated else it }
+                        activeExpenseItem = updated
+                        navController.popBackStack()
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
+
+            // Profile tab
             navigation(startDestination = ProfileRoutes.HOME, route = Screen.Profile.route) {
                 composable(ProfileRoutes.HOME) {
                     ProfileScreen(
                         profile = profile,
+                        netOwedBalance = johnNetBalance,
                         onCurrencyChange = { profile = profile.copy(currency = it) },
                         onEditProfile = { navController.navigate(ProfileRoutes.EDIT) },
                         onNotificationSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
