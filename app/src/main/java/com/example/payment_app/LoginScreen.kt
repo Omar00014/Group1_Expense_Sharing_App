@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // 仮の色。Figmaの色コードが決まったらここだけ直す
-// TODO: replace with the actual Figma colors L20~22
+// replace with the actual Figma colors L20~22
 val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
