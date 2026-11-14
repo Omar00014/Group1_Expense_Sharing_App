@@ -30,3 +30,23 @@ object ProfileRoutes {
     /** Destinations that hide the bottom navigation bar. */
     val fullScreenRoutes = setOf(EDIT, NOTIFICATIONS)
 }
+
+object PaymentRoutes {
+    const val PAYMENT_METHODS = "payment_methods"
+    const val ADD_EDIT_CARD = "add_edit_card?cardId={cardId}"
+    const val PAY_MY_SHARE = "pay_my_share"
+    const val CONFIRM_PAYMENT = "confirm_payment"
+    const val PAYMENT_RESULT = "payment_result"
+
+    fun addEditCardRoute(cardId: String? = null): String {
+        return if (cardId != null) "add_edit_card?cardId=$cardId" else "add_edit_card"
+    }
+
+    /** Destinations that hide the bottom navigation bar. */
+    val fullScreenRoutes = setOf(
+        "add_edit_card",
+        "add_edit_card?cardId={cardId}",
+        PAY_MY_SHARE,
+        CONFIRM_PAYMENT
+    )
+}
