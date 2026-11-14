@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -20,9 +21,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.payment_app.ui.screens.ActivityScreen
-import com.example.payment_app.ui.screens.GroupsScreen
 import com.example.payment_app.ui.screens.HomeScreen
 import com.example.payment_app.ui.screens.ProfileScreen
+import com.example.payment_app.ui.screens.groups.GroupsState
 import com.example.payment_app.ui.screens.profile.Currency
 import com.example.payment_app.ui.screens.profile.EditProfileScreen
 import com.example.payment_app.ui.screens.profile.NotificationSettings
@@ -36,6 +37,7 @@ fun ExpenseApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val groupsState = remember { GroupsState() }
 
     var profile by rememberSaveable(stateSaver = UserProfileSaver) {
         mutableStateOf(
@@ -51,7 +53,8 @@ fun ExpenseApp() {
         mutableStateOf(NotificationSettings())
     }
 
-    val showBottomBar = ProfileRoutes.fullScreenRoutes.none { it == currentDestination?.route }
+    val fullScreenRoutes = ProfileRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes
+    val showBottomBar = currentDestination?.route !in fullScreenRoutes
 
     Scaffold(
         bottomBar = {
@@ -85,7 +88,7 @@ fun ExpenseApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) { HomeScreen() }
-            composable(Screen.Groups.route) { GroupsScreen() }
+            groupsGraph(navController, groupsState)
             composable(Screen.Activity.route) { ActivityScreen() }
 
             // Profile tab: nested graph so the tab stays highlighted on sub-screens
