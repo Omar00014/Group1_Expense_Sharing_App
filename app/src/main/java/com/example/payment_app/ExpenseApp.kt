@@ -25,6 +25,15 @@ import androidx.navigation.navArgument
 import com.example.payment_app.ui.screens.ActivityScreen
 import com.example.payment_app.ui.screens.HomeScreen
 import com.example.payment_app.ui.screens.ProfileScreen
+import com.example.payment_app.ui.screens.expense.AddExpenseScreen
+import com.example.payment_app.ui.screens.expense.EditExpenseScreen
+import com.example.payment_app.ui.screens.expense.ExpenseDetailsScreen
+import com.example.payment_app.ui.screens.expense.ExpenseGroup
+import com.example.payment_app.ui.screens.expense.ExpenseItem
+import com.example.payment_app.ui.screens.expense.ExpenseMockData
+import com.example.payment_app.ui.screens.expense.SplitExpenseScreen
+import com.example.payment_app.ui.screens.expense.calculateNetBalanceForMember
+import com.example.payment_app.ui.screens.groups.GroupsState
 import com.example.payment_app.ui.screens.payment.AddEditCardScreen
 import com.example.payment_app.ui.screens.payment.ConfirmPaymentScreen
 import com.example.payment_app.ui.screens.payment.PaymentCard
@@ -32,10 +41,8 @@ import com.example.payment_app.ui.screens.payment.PaymentMethodsScreen
 import com.example.payment_app.ui.screens.payment.PaymentReceipt
 import com.example.payment_app.ui.screens.payment.PaymentResultScreen
 import com.example.payment_app.ui.screens.payment.PaymentShareContext
-import com.example.payment_app.ui.screens.payment.PaymentShareContextSaver
 import com.example.payment_app.ui.screens.payment.PayMyShareScreen
 import com.example.payment_app.ui.screens.payment.defaultSavedCards
-import com.example.payment_app.ui.screens.groups.GroupsState
 import com.example.payment_app.ui.screens.profile.Currency
 import com.example.payment_app.ui.screens.profile.EditProfileScreen
 import com.example.payment_app.ui.screens.profile.NotificationSettings
@@ -65,6 +72,14 @@ fun ExpenseApp() {
         mutableStateOf(NotificationSettings())
     }
 
+    // Expense state
+    var groups by remember { mutableStateOf(ExpenseMockData.sampleGroups) }
+    var expenses by remember { mutableStateOf(ExpenseMockData.initialExpenses) }
+    var selectedGroup by remember { mutableStateOf<ExpenseGroup?>(null) }
+    var activeExpenseItem by remember { mutableStateOf<ExpenseItem?>(null) }
+
+    val johnNetBalance = calculateNetBalanceForMember(ExpenseMockData.john.id, expenses)
+
     // Payment state
     var savedCards by remember { mutableStateOf(defaultSavedCards) }
     var activeShareContext by remember { mutableStateOf(PaymentShareContext()) }
@@ -76,7 +91,7 @@ fun ExpenseApp() {
     }
 
     val currentRoute = currentDestination?.route
-    val isFullScreen = (ProfileRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes).any { route ->
+    val isFullScreen = (ProfileRoutes.fullScreenRoutes + ExpenseRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes).any { route ->
         currentRoute == route || (route.contains("?") && currentRoute?.startsWith(route.substringBefore("?")) == true)
     }
     val showBottomBar = !isFullScreen
@@ -114,6 +129,17 @@ fun ExpenseApp() {
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
+                    currentUserId = ExpenseMockData.john.id,
+                    groups = groups,
+                    expenses = expenses,
+                    onGroupSelectedForAdd = { grp ->
+                        selectedGroup = grp
+                        navController.navigate(ExpenseRoutes.ADD)
+                    },
+                    onExpenseSelected = { item ->
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.DETAILS)
+                    },
                     onPayMyShare = { navController.navigate(PaymentRoutes.PAY_MY_SHARE) },
                     onPaymentMethods = { navController.navigate(PaymentRoutes.PAYMENT_METHODS) }
                 )
@@ -121,7 +147,61 @@ fun ExpenseApp() {
             groupsGraph(navController, groupsState)
             composable(Screen.Activity.route) { ActivityScreen() }
 
-            // Screen 25 · Payment methods
+            // Expense Flow Screens
+            composable(ExpenseRoutes.ADD) {
+                AddExpenseScreen(
+                    initialGroup = selectedGroup ?: ExpenseMockData.weekendTripGroup,
+                    groups = groups,
+                    members = ExpenseMockData.allMembers,
+                    onContinueToSplit = { item ->
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.SPLIT)
+                    },
+                    onSaveDraft = { item ->
+                        expenses = expenses + item
+                        navController.popBackStack(Screen.Home.route, inclusive = false)
+                    },
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.SPLIT) {
+                SplitExpenseScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    onConfirmSplit = { item ->
+                        expenses = expenses.filter { it.id != item.id } + item
+                        activeExpenseItem = item
+                        navController.navigate(ExpenseRoutes.DETAILS) {
+                            popUpTo(Screen.Home.route)
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.DETAILS) {
+                ExpenseDetailsScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    onEditExpense = { navController.navigate(ExpenseRoutes.EDIT) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(ExpenseRoutes.EDIT) {
+                EditExpenseScreen(
+                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    groups = groups,
+                    members = ExpenseMockData.allMembers,
+                    onSave = { updated ->
+                        expenses = expenses.map { if (it.id == updated.id) updated else it }
+                        activeExpenseItem = updated
+                        navController.popBackStack()
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
+
+            // Payment Routes
             composable(PaymentRoutes.PAYMENT_METHODS) {
                 PaymentMethodsScreen(
                     cards = savedCards,
@@ -131,7 +211,6 @@ fun ExpenseApp() {
                 )
             }
 
-            // Screen 26 · Add / edit card details
             composable(
                 route = PaymentRoutes.ADD_EDIT_CARD,
                 arguments = listOf(
@@ -167,7 +246,6 @@ fun ExpenseApp() {
                 )
             }
 
-            // Screen 27 & 28 · Pay my share & Choose card bottom sheet
             composable(PaymentRoutes.PAY_MY_SHARE) {
                 PayMyShareScreen(
                     context = activeShareContext,
@@ -185,18 +263,17 @@ fun ExpenseApp() {
                 )
             }
 
-            // Screen 29 · Confirm payment / payment details
             composable(PaymentRoutes.CONFIRM_PAYMENT) {
                 val card = selectedPaymentCard ?: savedCards.firstOrNull { it.isDefault } ?: defaultSavedCards.first()
                 ConfirmPaymentScreen(
                     context = activeShareContext,
                     card = card,
-                    senderName = "Alex Taylor",
+                    senderName = profile.fullName,
                     onConfirm = {
                         activeReceipt = PaymentReceipt(
                             referenceId = "REF-AP-2026-0424",
                             formattedDate = "24 Apr 2026 · 09:41 AM",
-                            fromUser = "Alex",
+                            fromUser = profile.fullName.split(" ").first(),
                             toUser = activeShareContext.fullRecipient,
                             groupName = activeShareContext.groupName,
                             status = "Paid",
@@ -211,7 +288,6 @@ fun ExpenseApp() {
                 )
             }
 
-            // Screen 30 · Payment result
             composable(PaymentRoutes.PAYMENT_RESULT) {
                 PaymentResultScreen(
                     receipt = activeReceipt ?: PaymentReceipt(),
@@ -228,11 +304,12 @@ fun ExpenseApp() {
                 )
             }
 
-            // Profile tab: nested graph so the tab stays highlighted on sub-screens
+            // Profile tab
             navigation(startDestination = ProfileRoutes.HOME, route = Screen.Profile.route) {
                 composable(ProfileRoutes.HOME) {
                     ProfileScreen(
                         profile = profile,
+                        netOwedBalance = johnNetBalance,
                         onCurrencyChange = { profile = profile.copy(currency = it) },
                         onEditProfile = { navController.navigate(ProfileRoutes.EDIT) },
                         onNotificationSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },

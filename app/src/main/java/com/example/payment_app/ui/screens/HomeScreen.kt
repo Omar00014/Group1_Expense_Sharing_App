@@ -17,232 +17,331 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.payment_app.ui.screens.payment.FigmaBackground
-import com.example.payment_app.ui.screens.payment.FigmaPrimaryPill
-import com.example.payment_app.ui.screens.payment.FigmaSurface
-import com.example.payment_app.ui.screens.payment.FigmaSurfaceHigh
-import com.example.payment_app.ui.screens.payment.FigmaTextDark
-import com.example.payment_app.ui.screens.payment.FigmaTextMuted
-import com.example.payment_app.ui.screens.payment.FigmaTextPrimary
+import com.example.payment_app.ui.screens.expense.ChooseGroupSheet
+import com.example.payment_app.ui.screens.expense.ExpenseGroup
+import com.example.payment_app.ui.screens.expense.ExpenseItem
+import com.example.payment_app.ui.screens.expense.ExpenseMockData
+import com.example.payment_app.ui.screens.expense.calculateGroupNetBalanceForMember
+import com.example.payment_app.ui.screens.expense.calculateNetBalanceForMember
+import com.example.payment_app.ui.screens.expense.formatNetBalance
+import com.example.payment_app.ui.screens.profile.ScreenTitle
+import com.example.payment_app.ui.screens.profile.SettingsCard
 import com.example.payment_app.ui.theme.Payment_AppTheme
+import java.util.Locale
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    currentUserId: String = ExpenseMockData.john.id,
+    groups: List<ExpenseGroup> = ExpenseMockData.sampleGroups,
+    expenses: List<ExpenseItem> = ExpenseMockData.initialExpenses,
+    onGroupSelectedForAdd: (ExpenseGroup) -> Unit = {},
+    onExpenseSelected: (ExpenseItem) -> Unit = {},
     onPayMyShare: () -> Unit = {},
     onPaymentMethods: () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(FigmaBackground)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        // Top welcome header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = "Welcome back,",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 13.sp,
-                        color = FigmaTextMuted
-                    )
-                )
-                Text(
-                    text = "Alex Taylor",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = FigmaTextPrimary
-                    )
-                )
-            }
+    var showChooseGroupSheet by remember { mutableStateOf(false) }
 
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(FigmaSurface)
-                    .clickable(onClick = onPaymentMethods),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CreditCard,
-                    contentDescription = "Payment methods",
-                    tint = FigmaTextPrimary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
+    // Dynamic responsiveness calculations for John Doe
+    val netOwedBalance = calculateNetBalanceForMember(currentUserId, expenses)
+    val formattedNetBalance = formatNetBalance(netOwedBalance)
+    val balanceColor = if (netOwedBalance > 0) Color(0xFF81C784) else if (netOwedBalance < 0) Color(0xFFE57373) else MaterialTheme.colorScheme.onSurface
 
-        // Active Group Debt Card (Apartment)
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = FigmaSurface
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(FigmaSurfaceHigh),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Home,
-                                contentDescription = null,
-                                tint = FigmaTextPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+    val responsiveGroups = groups.map { grp ->
+        val grpNet = calculateGroupNetBalanceForMember(currentUserId, grp.id, expenses)
+        val grpExpenseCount = expenses.count { it.group.id == grp.id }
+        grp.copy(netBalance = grpNet, expenseCount = grpExpenseCount)
+    }
 
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(
-                                text = "Apartment",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = FigmaTextPrimary
-                                )
-                            )
-                            Text(
-                                text = "3 members · 7 expenses",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontSize = 12.sp,
-                                    color = FigmaTextMuted
-                                )
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = "$14.50",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = FigmaTextPrimary
-                        )
-                    )
-                }
-
-                Text(
-                    text = "You owe Maya $14.50 for Apartment.",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 13.sp,
-                        color = FigmaTextMuted
-                    )
-                )
-
-                Button(
-                    onClick = onPayMyShare,
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = FigmaPrimaryPill,
-                        contentColor = FigmaTextDark
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                ) {
-                    Text(
-                        text = "Pay my share ($14.50)",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-            }
-        }
-
-        // Quick shortcut to Payment Methods
-        Surface(
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onPaymentMethods),
-            shape = RoundedCornerShape(14.dp),
-            color = FigmaSurface
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Header: Welcome + Payment Methods Shortcut
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Payment methods",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = FigmaTextPrimary
+                        text = "Welcome back,",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                     Text(
-                        text = "Manage saved cards & default card",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 12.sp,
-                            color = FigmaTextMuted
+                        text = "John Doe",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     )
                 }
 
-                Text(
-                    text = "Manage",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = FigmaTextPrimary
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .clickable(onClick = onPaymentMethods),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CreditCard,
+                        contentDescription = "Payment methods",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(20.dp)
                     )
+                }
+            }
+
+            // Title
+            ScreenTitle("Overview & Expenses")
+
+            // Balance Summary Card (Responsive)
+            SettingsCard {
+                Text(
+                    text = if (netOwedBalance >= 0) "Total net owed to you" else "Total net you owe",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = formattedNetBalance,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = balanceColor
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "${responsiveGroups.size} active groups · ${expenses.size} total expenses",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            // Active Debt / Quick Pay Share Card
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Home,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(
+                                    text = "Apartment",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                                Text(
+                                    text = "3 members · 7 expenses",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = "$14.50",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    }
+
+                    Text(
+                        text = "You owe Jordan $14.50 for Apartment.",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    Button(
+                        onClick = onPayMyShare,
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                    ) {
+                        Text(
+                            text = "Pay my share ($14.50)",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Recent Expenses Section Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Recent Expenses",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    "${expenses.size} items",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Expense Item Cards
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                expenses.forEach { expense ->
+                    SettingsCard(onClick = { onExpenseSelected(expense) }) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = expense.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = "${expense.group.name} · Paid by ${expense.payer.fullName}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = "$${String.format(Locale.US, "%.2f", expense.amount)}",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Floating Action Button to add expense
+        FloatingActionButton(
+            onClick = { showChooseGroupSheet = true },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Expense")
+                Spacer(Modifier.size(8.dp))
+                Text(
+                    "Add expense",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        // Modal Bottom Sheet over HomeScreen
+        if (showChooseGroupSheet) {
+            ChooseGroupSheet(
+                groups = responsiveGroups,
+                onGroupSelected = { grp ->
+                    showChooseGroupSheet = false
+                    onGroupSelectedForAdd(grp)
+                },
+                onDismiss = { showChooseGroupSheet = false }
+            )
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 640)
+@Preview(showBackground = true, widthDp = 360, heightDp = 760)
 @Composable
 private fun HomeScreenPreview() {
     Payment_AppTheme {
-        Surface(color = FigmaBackground) {
+        Surface(color = MaterialTheme.colorScheme.background) {
             HomeScreen()
         }
     }

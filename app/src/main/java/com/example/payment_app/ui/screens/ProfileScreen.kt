@@ -40,9 +40,7 @@ import com.example.payment_app.ui.screens.profile.ScreenTitle
 import com.example.payment_app.ui.screens.profile.SettingsCard
 import com.example.payment_app.ui.screens.profile.UserProfile
 import com.example.payment_app.ui.theme.Payment_AppTheme
-
-// Placeholder until balances come from real data
-private const val NET_OWED_PLACEHOLDER = "47.50"
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
@@ -51,9 +49,13 @@ fun ProfileScreen(
     onEditProfile: () -> Unit,
     onNotificationSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    netOwedBalance: Double = 51.50,
     onPaymentMethods: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
+    val formattedBalance = String.format(Locale.US, "%.2f", kotlin.math.abs(netOwedBalance))
+    val balanceText = if (netOwedBalance >= 0) "+${profile.currency.symbol}$formattedBalance" else "-${profile.currency.symbol}$formattedBalance"
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -75,13 +77,14 @@ fun ProfileScreen(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .background(Color(0xFFE0E0E0), CircleShape),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "PFP",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color(0xFF171A22)
+                    text = "JD",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -101,19 +104,19 @@ fun ProfileScreen(
             )
         }
 
-        // Balance card
+        // Balance card (Responsive)
         SettingsCard {
             Text(
-                "Net owed before payment",
+                text = if (netOwedBalance >= 0) "Net owed to you" else "Net you owe",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                "${profile.currency.symbol}$NET_OWED_PLACEHOLDER",
+                text = balanceText,
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (netOwedBalance > 0) Color(0xFF81C784) else if (netOwedBalance < 0) Color(0xFFE57373) else MaterialTheme.colorScheme.onSurface
             )
             Spacer(Modifier.height(6.dp))
             Text(
@@ -206,7 +209,7 @@ private fun ProfileScreenPreview() {
     Payment_AppTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             ProfileScreen(
-                profile = UserProfile("John Doe", "@john", "john@example.com", Currency.USD),
+                profile = UserProfile("John Doe", "@JD01", "johndoe@example.com", Currency.USD),
                 onCurrencyChange = {},
                 onEditProfile = {},
                 onNotificationSettings = {}
