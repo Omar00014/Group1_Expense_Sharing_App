@@ -135,15 +135,15 @@ fun GroupSummaryCard(
 @Preview(showBackground = true)
 @Composable
 private fun GroupSummaryCardPreview() {
-    Payment_AppTheme(dynamicColor = false) {
+    Payment_AppTheme() {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionHeader(title = "My Groups", actionLabel = "See all")
             GroupSummaryCard(
-                group = GroupSummary("weekend-trip", "Weekend Trip", 4, 3, 6_200),
+                group = GroupSummary("1", "Weekend Trip", 4, 3, 6_200),
                 onClick = {},
             )
             GroupSummaryCard(
-                group = GroupSummary("apartment", "Apartment", 3, 7, -1_450),
+                group = GroupSummary("2", "Apartment", 3, 7, -1_450),
                 onClick = {},
             )
         }

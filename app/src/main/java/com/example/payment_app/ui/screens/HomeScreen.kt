@@ -194,7 +194,7 @@ private fun EmptyText(text: String) {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun HomeContentPreview() {
-    Payment_AppTheme(dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             HomeContent(
                 uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 9),
@@ -208,7 +208,7 @@ private fun HomeContentPreview() {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun HomeContentDarkPreview() {
-    Payment_AppTheme(darkTheme = true, dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             HomeContent(
                 uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 20),

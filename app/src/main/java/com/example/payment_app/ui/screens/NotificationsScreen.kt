@@ -252,7 +252,7 @@ private fun previewState() = FakeOverviewRepository().let {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun NotificationsContentPreview() {
-    Payment_AppTheme(dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             NotificationsContent(
                 uiState = previewState(),
@@ -265,7 +265,7 @@ private fun NotificationsContentPreview() {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun NotificationsAllReadPreview() {
-    Payment_AppTheme(darkTheme = true, dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             val state = previewState()
             NotificationsContent(

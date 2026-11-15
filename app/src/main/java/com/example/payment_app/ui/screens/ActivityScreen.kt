@@ -279,7 +279,7 @@ private fun previewState(): ActivityUiState {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun ActivityContentPreview() {
-    Payment_AppTheme(dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             ActivityContent(
                 uiState = previewState(),
@@ -292,7 +292,7 @@ private fun ActivityContentPreview() {
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun TransactionHistoryEmptyPreview() {
-    Payment_AppTheme(darkTheme = true, dynamicColor = false) {
+    Payment_AppTheme() {
         Surface {
             ActivityContent(
                 uiState = previewState().copy(typeFilter = ActivityTypeFilter.SETTLEMENTS, entries = emptyList()),

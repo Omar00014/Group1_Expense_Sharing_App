@@ -20,34 +20,34 @@ class FakeOverviewRepository : OverviewRepository {
     override fun currentUserFirstName(): String = "Alex"
 
     override fun groups(): List<GroupSummary> = listOf(
-        GroupSummary(id = "weekend-trip", name = "Weekend Trip", memberCount = 4, expenseCount = 3, balanceCents = 6_200),
-        GroupSummary(id = "apartment", name = "Apartment", memberCount = 3, expenseCount = 7, balanceCents = -1_450),
+        GroupSummary(id = "1", name = "Weekend Trip", memberCount = 4, expenseCount = 3, balanceCents = 6_200),
+        GroupSummary(id = "2", name = "Apartment", memberCount = 3, expenseCount = 7, balanceCents = -1_450),
     )
 
     override fun activity(): List<ActivityEntry> = listOf(
         ActivityEntry(
             id = "a1", type = ActivityType.EXPENSE, actorName = "Jordan", title = "Jordan paid Dinner",
-            groupId = "weekend-trip", groupName = "Weekend Trip", detail = "split 4 ways",
+            groupId = "1", groupName = "Weekend Trip", detail = "split 4 ways",
             amountCents = 8_800, dateLabel = "Today",
         ),
         ActivityEntry(
             id = "a2", type = ActivityType.EXPENSE, actorName = "You", title = "You paid Groceries",
-            groupId = "apartment", groupName = "Apartment", detail = "split 3 ways",
+            groupId = "2", groupName = "Apartment", detail = "split 3 ways",
             amountCents = 4_350, dateLabel = "Yesterday",
         ),
         ActivityEntry(
             id = "a3", type = ActivityType.SETTLEMENT, actorName = "Sam", title = "Sam settled up with you",
-            groupId = "weekend-trip", groupName = "Weekend Trip", detail = "settled",
+            groupId = "1", groupName = "Weekend Trip", detail = "settled",
             amountCents = 2_200, dateLabel = "2d ago",
         ),
         ActivityEntry(
             id = "a4", type = ActivityType.EXPENSE, actorName = "Maya", title = "Maya paid Internet",
-            groupId = "apartment", groupName = "Apartment", detail = "split 3 ways",
+            groupId = "2", groupName = "Apartment", detail = "split 3 ways",
             amountCents = 3_000, dateLabel = "3d ago",
         ),
         ActivityEntry(
             id = "a5", type = ActivityType.EXPENSE, actorName = "You", title = "You paid Fuel",
-            groupId = "weekend-trip", groupName = "Weekend Trip", detail = "split 4 ways",
+            groupId = "1", groupName = "Weekend Trip", detail = "split 4 ways",
             amountCents = 6_400, dateLabel = "4d ago",
         ),
     )

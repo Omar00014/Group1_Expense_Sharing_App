@@ -96,12 +96,12 @@ class ActivityViewModelTest {
     fun groupAndTypeFilters_combine() {
         val viewModel = ActivityViewModel(repository)
         viewModel.onTypeFilterChange(ActivityTypeFilter.EXPENSES)
-        viewModel.onGroupFilterChange("apartment")
+        viewModel.onGroupFilterChange("2")
 
         val state = viewModel.uiState.value
         assertEquals("Apartment", state.selectedGroupName)
         assertTrue(state.entries.isNotEmpty())
-        assertTrue(state.entries.all { it.groupId == "apartment" && it.type == ActivityType.EXPENSE })
+        assertTrue(state.entries.all { it.groupId == "2" && it.type == ActivityType.EXPENSE })
 
         viewModel.onGroupFilterChange(null)
         assertEquals(ActivityTypeFilter.EXPENSES, viewModel.uiState.value.typeFilter)
