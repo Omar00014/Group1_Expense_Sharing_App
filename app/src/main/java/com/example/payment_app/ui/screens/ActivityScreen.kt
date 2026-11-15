@@ -49,15 +49,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.payment_app.data.repository.FakeOverviewRepository
 import com.example.payment_app.data.model.ActivityEntry
 import com.example.payment_app.data.model.ActivityType
-import com.example.payment_app.data.model.GroupSummary
 import com.example.payment_app.ui.components.InitialAvatar
 import com.example.payment_app.ui.components.balanceColor
 import com.example.payment_app.ui.components.countLabel
 import com.example.payment_app.ui.components.formatMoney
+import com.example.payment_app.ui.components.netBalanceCents
+import com.example.payment_app.ui.screens.groups.GroupSummary
+import com.example.payment_app.ui.screens.groups.sampleGroups
 import com.example.payment_app.ui.theme.Payment_AppTheme
 
 @Composable
 fun ActivityScreen(
+    groups: List<GroupSummary>,
     onOpenNotifications: () -> Unit,
     onEntryClick: (entryId: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -66,6 +69,7 @@ fun ActivityScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     ActivityContent(
         uiState = uiState,
+        groups = groups,
         onTypeFilterChange = viewModel::onTypeFilterChange,
         onGroupFilterChange = viewModel::onGroupFilterChange,
         onOpenNotifications = onOpenNotifications,
@@ -77,6 +81,7 @@ fun ActivityScreen(
 @Composable
 fun ActivityContent(
     uiState: ActivityUiState,
+    groups: List<GroupSummary>,
     onTypeFilterChange: (ActivityTypeFilter) -> Unit,
     onGroupFilterChange: (groupId: String?) -> Unit,
     onOpenNotifications: () -> Unit,
@@ -119,7 +124,7 @@ fun ActivityContent(
             }
         }
 
-        item { NetOwedCard(netBalanceCents = uiState.netBalanceCents, groupCount = uiState.groups.size) }
+        item { NetOwedCard(netBalanceCents = netBalanceCents(groups), groupCount = groups.size) }
 
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -130,8 +135,8 @@ fun ActivityContent(
                     modifier = Modifier.weight(1f),
                 )
                 GroupFilterDropdown(
-                    groups = uiState.groups,
-                    selectedGroupName = uiState.selectedGroupName,
+                    groups = groups,
+                    selectedGroupName = groups.firstOrNull { it.id == uiState.groupFilterId }?.name ?: "All groups",
                     onGroupFilterChange = onGroupFilterChange,
                 )
             }
@@ -269,9 +274,7 @@ private fun HistoryEntryCard(entry: ActivityEntry, onClick: () -> Unit, modifier
 private fun previewState(): ActivityUiState {
     val repository = FakeOverviewRepository()
     return ActivityUiState(
-        groups = repository.groups(),
         entries = repository.activity(),
-        netBalanceCents = repository.groups().sumOf { it.balanceCents },
         isShowingCachedData = true,
     )
 }
@@ -283,6 +286,7 @@ private fun ActivityContentPreview() {
         Surface {
             ActivityContent(
                 uiState = previewState(),
+                groups = sampleGroups,
                 onTypeFilterChange = {}, onGroupFilterChange = {}, onOpenNotifications = {}, onEntryClick = {},
             )
         }
@@ -296,6 +300,7 @@ private fun TransactionHistoryEmptyPreview() {
         Surface {
             ActivityContent(
                 uiState = previewState().copy(typeFilter = ActivityTypeFilter.SETTLEMENTS, entries = emptyList()),
+                groups = sampleGroups,
                 onTypeFilterChange = {}, onGroupFilterChange = {}, onOpenNotifications = {}, onEntryClick = {},
             )
         }

@@ -3,12 +3,11 @@ package com.example.payment_app.data.repository
 import com.example.payment_app.data.model.ActivityEntry
 import com.example.payment_app.data.model.ActivityType
 import com.example.payment_app.data.model.AppNotification
-import com.example.payment_app.data.model.GroupSummary
 import com.example.payment_app.data.model.NotificationKind
 
+/** Groups come from GroupsState (Groups pages), not from here. */
 interface OverviewRepository {
     fun currentUserFirstName(): String
-    fun groups(): List<GroupSummary>
     fun activity(): List<ActivityEntry>
     fun notifications(): List<AppNotification>
 
@@ -18,11 +17,6 @@ interface OverviewRepository {
 class FakeOverviewRepository : OverviewRepository {
 
     override fun currentUserFirstName(): String = "Alex"
-
-    override fun groups(): List<GroupSummary> = listOf(
-        GroupSummary(id = "1", name = "Weekend Trip", memberCount = 4, expenseCount = 3, balanceCents = 6_200),
-        GroupSummary(id = "2", name = "Apartment", memberCount = 3, expenseCount = 7, balanceCents = -1_450),
-    )
 
     override fun activity(): List<ActivityEntry> = listOf(
         ActivityEntry(

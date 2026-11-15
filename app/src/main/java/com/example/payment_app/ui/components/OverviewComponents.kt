@@ -26,7 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.payment_app.data.model.GroupSummary
+import com.example.payment_app.ui.screens.groups.GroupSummary
+import com.example.payment_app.ui.screens.groups.sampleGroups
 import com.example.payment_app.ui.theme.Payment_AppTheme
 
 @Composable
@@ -111,19 +112,20 @@ fun GroupSummaryCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = "${countLabel(group.memberCount, "member")} · ${countLabel(group.expenseCount, "expense")}",
+                    text = group.subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            val balanceCents = group.amount.toCents()
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
                 Text(
-                    text = formatMoney(group.balanceCents, showPlusSign = true),
+                    text = formatMoney(balanceCents, showPlusSign = true),
                     style = MaterialTheme.typography.titleSmall,
-                    color = balanceColor(group.balanceCents),
+                    color = balanceColor(balanceCents),
                 )
                 Text(
-                    text = balanceCaption(group.balanceCents),
+                    text = balanceCaption(balanceCents),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -138,14 +140,9 @@ private fun GroupSummaryCardPreview() {
     Payment_AppTheme() {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionHeader(title = "My Groups", actionLabel = "See all")
-            GroupSummaryCard(
-                group = GroupSummary("1", "Weekend Trip", 4, 3, 6_200),
-                onClick = {},
-            )
-            GroupSummaryCard(
-                group = GroupSummary("2", "Apartment", 3, 7, -1_450),
-                onClick = {},
-            )
+            sampleGroups.forEach { group ->
+                GroupSummaryCard(group = group, onClick = {})
+            }
         }
     }
 }

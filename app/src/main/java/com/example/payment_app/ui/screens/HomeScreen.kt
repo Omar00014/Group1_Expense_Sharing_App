@@ -37,11 +37,15 @@ import com.example.payment_app.ui.components.GroupSummaryCard
 import com.example.payment_app.ui.components.InitialAvatar
 import com.example.payment_app.ui.components.SectionHeader
 import com.example.payment_app.ui.components.formatMoney
+import com.example.payment_app.ui.components.netBalanceCents
+import com.example.payment_app.ui.screens.groups.GroupSummary
+import com.example.payment_app.ui.screens.groups.sampleGroups
 import com.example.payment_app.ui.theme.Payment_AppTheme
 import kotlin.math.abs
 
 @Composable
 fun HomeScreen(
+    groups: List<GroupSummary>,
     onAddExpense: () -> Unit,
     onPayShare: () -> Unit,
     onSeeAllGroups: () -> Unit,
@@ -54,6 +58,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeContent(
         uiState = uiState,
+        groups = groups,
         onAddExpense = onAddExpense,
         onPayShare = onPayShare,
         onSeeAllGroups = onSeeAllGroups,
@@ -67,6 +72,7 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     uiState: HomeUiState,
+    groups: List<GroupSummary>,
     onAddExpense: () -> Unit,
     onPayShare: () -> Unit,
     onSeeAllGroups: () -> Unit,
@@ -94,7 +100,7 @@ fun HomeContent(
             }
         }
 
-        item { NetBalanceHeader(netBalanceCents = uiState.netBalanceCents) }
+        item { NetBalanceHeader(netBalanceCents = netBalanceCents(groups)) }
 
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -104,10 +110,10 @@ fun HomeContent(
         }
 
         item { SectionHeader(title = "My Groups", actionLabel = "See all", onAction = onSeeAllGroups) }
-        if (uiState.groups.isEmpty()) {
+        if (groups.isEmpty()) {
             item { EmptyText("You're not in any groups yet.") }
         }
-        items(uiState.groups, key = { it.id }) { group ->
+        items(groups, key = { it.id }) { group ->
             GroupSummaryCard(group = group, onClick = { onGroupClick(group.id) })
         }
 
@@ -198,6 +204,7 @@ private fun HomeContentPreview() {
         Surface {
             HomeContent(
                 uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 9),
+                groups = sampleGroups,
                 onAddExpense = {}, onPayShare = {}, onSeeAllGroups = {}, onGroupClick = {},
                 onSeeAllActivity = {}, onProfileClick = {},
             )
@@ -212,6 +219,7 @@ private fun HomeContentDarkPreview() {
         Surface {
             HomeContent(
                 uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 20),
+                groups = sampleGroups,
                 onAddExpense = {}, onPayShare = {}, onSeeAllGroups = {}, onGroupClick = {},
                 onSeeAllActivity = {}, onProfileClick = {},
             )

@@ -1,13 +1,5 @@
 package com.example.payment_app.data.model
 
-data class GroupSummary(
-    val id: String,
-    val name: String,
-    val memberCount: Int,
-    val expenseCount: Int,
-    val balanceCents: Long,
-)
-
 enum class ActivityType { EXPENSE, SETTLEMENT }
 
 data class ActivityEntry(

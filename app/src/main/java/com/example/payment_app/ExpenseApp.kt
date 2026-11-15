@@ -63,9 +63,9 @@ fun ExpenseApp() {
     var profile by rememberSaveable(stateSaver = UserProfileSaver) {
         mutableStateOf(
             UserProfile(
-                fullName = "John Doe",
-                username = "@JD01",
-                email = "johndoe@example.com",
+                fullName = "Alex Taylor",
+                username = "@alex",
+                email = "alex@example.com",
                 currency = Currency.USD
             )
         )
@@ -102,6 +102,7 @@ fun ExpenseApp() {
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
+                    groups = groupsState.groups,
                     onAddExpense = { /* TODO: Add expense (13 · Choose group) */ },
                     onPayShare = { /* TODO: Pay my share (27) */ },
                     onSeeAllGroups = { navController.navigateToTab(Screen.Groups.route) },
@@ -117,6 +118,7 @@ fun ExpenseApp() {
             navigation(startDestination = ActivityRoutes.HISTORY, route = Screen.Activity.route) {
                 composable(ActivityRoutes.HISTORY) {
                     ActivityScreen(
+                        groups = groupsState.groups,
                         onOpenNotifications = { navController.navigate(ActivityRoutes.NOTIFICATIONS) },
                         // Temporary: opens the receipt until Expense details (16) exists
                         onEntryClick = { entryId -> navController.navigateToReceipt(entryId) },

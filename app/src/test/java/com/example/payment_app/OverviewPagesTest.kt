@@ -9,6 +9,9 @@ import com.example.payment_app.ui.viewmodel.NotificationsViewModel
 import com.example.payment_app.ui.components.countLabel
 import com.example.payment_app.ui.components.formatMoney
 import com.example.payment_app.ui.components.greetingForHour
+import com.example.payment_app.ui.components.netBalanceCents
+import com.example.payment_app.ui.components.toCents
+import com.example.payment_app.ui.screens.groups.sampleGroups
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -52,11 +55,26 @@ class FormattingTest {
     }
 }
 
-class HomeViewModelTest {
+class GroupBalanceTest {
+    @Test
+    fun toCents_roundsToWholeCents() {
+        assertEquals(6_200L, 62.0.toCents())
+        assertEquals(-1_450L, (-14.5).toCents())
+        assertEquals(10L, 0.1.toCents())
+    }
+
     @Test
     fun netBalance_isSumOfGroupBalances() {
+        // Weekend Trip +62.00 and Apartment -14.50 (Kian's sample groups), as in the wireframe.
+        assertEquals(4_750L, netBalanceCents(sampleGroups))
+        assertEquals(0L, netBalanceCents(emptyList()))
+    }
+}
+
+class HomeViewModelTest {
+    @Test
+    fun greetingAndName() {
         val state = HomeViewModel(FakeOverviewRepository(), currentHour = { 9 }).uiState.value
-        assertEquals(4_750L, state.netBalanceCents)
         assertEquals("Good morning", state.greeting)
         assertEquals("Alex", state.userFirstName)
     }
@@ -76,7 +94,6 @@ class ActivityViewModelTest {
         val state = ActivityViewModel(repository).uiState.value
         assertEquals(ActivityTypeFilter.ALL, state.typeFilter)
         assertEquals(repository.activity().size, state.entries.size)
-        assertEquals("All groups", state.selectedGroupName)
     }
 
     @Test
@@ -99,7 +116,6 @@ class ActivityViewModelTest {
         viewModel.onGroupFilterChange("2")
 
         val state = viewModel.uiState.value
-        assertEquals("Apartment", state.selectedGroupName)
         assertTrue(state.entries.isNotEmpty())
         assertTrue(state.entries.all { it.groupId == "2" && it.type == ActivityType.EXPENSE })
 

@@ -5,7 +5,6 @@ import com.example.payment_app.data.repository.FakeOverviewRepository
 import com.example.payment_app.data.repository.OverviewRepository
 import com.example.payment_app.data.model.ActivityEntry
 import com.example.payment_app.data.model.ActivityType
-import com.example.payment_app.data.model.GroupSummary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,17 +16,13 @@ enum class ActivityTypeFilter(val label: String) {
     SETTLEMENTS("Settlements"),
 }
 
+/** Groups and the net balance are not in here: they come from GroupsState. */
 data class ActivityUiState(
     val typeFilter: ActivityTypeFilter = ActivityTypeFilter.ALL,
     val groupFilterId: String? = null,
-    val groups: List<GroupSummary> = emptyList(),
     val entries: List<ActivityEntry> = emptyList(),
-    val netBalanceCents: Long = 0,
     val isShowingCachedData: Boolean = false,
-) {
-    val selectedGroupName: String
-        get() = groups.firstOrNull { it.id == groupFilterId }?.name ?: "All groups"
-}
+)
 
 class ActivityViewModel(
     private val repository: OverviewRepository = FakeOverviewRepository(),
@@ -36,14 +31,10 @@ class ActivityViewModel(
     private val allEntries: List<ActivityEntry> = repository.activity()
 
     private val _uiState = MutableStateFlow(
-        repository.groups().let { groups ->
-            ActivityUiState(
-                groups = groups,
-                entries = allEntries,
-                netBalanceCents = groups.sumOf { it.balanceCents },
-                isShowingCachedData = repository.isShowingCachedData(),
-            )
-        }
+        ActivityUiState(
+            entries = allEntries,
+            isShowingCachedData = repository.isShowingCachedData(),
+        )
     )
     val uiState: StateFlow<ActivityUiState> = _uiState.asStateFlow()
 
