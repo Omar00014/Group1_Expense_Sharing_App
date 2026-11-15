@@ -23,7 +23,6 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.payment_app.ui.screens.ActivityScreen
-import com.example.payment_app.ui.screens.GroupsScreen
 import com.example.payment_app.ui.screens.HomeScreen
 import com.example.payment_app.ui.screens.ProfileScreen
 import com.example.payment_app.ui.screens.payment.AddEditCardScreen
@@ -36,6 +35,7 @@ import com.example.payment_app.ui.screens.payment.PaymentShareContext
 import com.example.payment_app.ui.screens.payment.PaymentShareContextSaver
 import com.example.payment_app.ui.screens.payment.PayMyShareScreen
 import com.example.payment_app.ui.screens.payment.defaultSavedCards
+import com.example.payment_app.ui.screens.groups.GroupsState
 import com.example.payment_app.ui.screens.profile.Currency
 import com.example.payment_app.ui.screens.profile.EditProfileScreen
 import com.example.payment_app.ui.screens.profile.NotificationSettings
@@ -49,6 +49,7 @@ fun ExpenseApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val groupsState = remember { GroupsState() }
 
     var profile by rememberSaveable(stateSaver = UserProfileSaver) {
         mutableStateOf(
@@ -75,7 +76,7 @@ fun ExpenseApp() {
     }
 
     val currentRoute = currentDestination?.route
-    val isFullScreen = (ProfileRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes).any { route ->
+    val isFullScreen = (ProfileRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes).any { route ->
         currentRoute == route || (route.contains("?") && currentRoute?.startsWith(route.substringBefore("?")) == true)
     }
     val showBottomBar = !isFullScreen
@@ -117,7 +118,7 @@ fun ExpenseApp() {
                     onPaymentMethods = { navController.navigate(PaymentRoutes.PAYMENT_METHODS) }
                 )
             }
-            composable(Screen.Groups.route) { GroupsScreen() }
+            groupsGraph(navController, groupsState)
             composable(Screen.Activity.route) { ActivityScreen() }
 
             // Screen 25 · Payment methods

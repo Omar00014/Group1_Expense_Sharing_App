@@ -50,3 +50,23 @@ object PaymentRoutes {
         CONFIRM_PAYMENT
     )
 }
+
+object GroupsRoutes {
+    const val ARG_GROUP_ID = "groupId"
+
+    const val HOME = "groups_home"
+    const val CREATE = "group_create"
+    const val CHOOSE_MEMBERS = "group_choose_members"
+    const val OVERVIEW = "group_overview/{$ARG_GROUP_ID}"
+    const val EDIT = "group_edit/{$ARG_GROUP_ID}"
+    const val MANAGE = "group_manage/{$ARG_GROUP_ID}"
+    const val ADD_MEMBERS = "group_add_members/{$ARG_GROUP_ID}"
+
+    fun overview(id: String) = "group_overview/$id"
+    fun edit(id: String) = "group_edit/$id"
+    fun manage(id: String) = "group_manage/$id"
+    fun addMembers(id: String) = "group_add_members/$id"
+
+    /** Destinations that hide the bottom navigation bar (08, 09, 11 in the lo-fi + add members). */
+    val fullScreenRoutes = setOf(CREATE, CHOOSE_MEMBERS, EDIT, ADD_MEMBERS)
+}
