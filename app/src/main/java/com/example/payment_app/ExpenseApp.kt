@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,10 +23,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.payment_app.data.model.ReceiptExpense
+import com.example.payment_app.ui.components.toCents
 import com.example.payment_app.ui.screens.ActivityScreen
 import com.example.payment_app.ui.screens.HomeScreen
+import com.example.payment_app.ui.screens.NotificationsScreen
 import com.example.payment_app.ui.screens.ProfileScreen
 import com.example.payment_app.ui.screens.expense.AddExpenseScreen
+import com.example.payment_app.ui.screens.expense.ChooseGroupSheet
 import com.example.payment_app.ui.screens.expense.EditExpenseScreen
 import com.example.payment_app.ui.screens.expense.ExpenseDetailsScreen
 import com.example.payment_app.ui.screens.expense.ExpenseGroup
@@ -50,6 +55,24 @@ import com.example.payment_app.ui.screens.profile.NotificationSettingsSaver
 import com.example.payment_app.ui.screens.profile.NotificationSettingsScreen
 import com.example.payment_app.ui.screens.profile.UserProfile
 import com.example.payment_app.ui.screens.profile.UserProfileSaver
+import com.example.payment_app.ui.screens.receipt.ReceiptRoutes
+import com.example.payment_app.ui.screens.receipt.navigateToReceipt
+import com.example.payment_app.ui.screens.receipt.receiptScreen
+
+private object ActivityRoutes {
+    const val HISTORY = "activity/history"
+    const val NOTIFICATIONS = "activity/notifications"
+}
+
+private fun NavHostController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
 
 @Composable
 fun ExpenseApp() {
@@ -61,9 +84,9 @@ fun ExpenseApp() {
     var profile by rememberSaveable(stateSaver = UserProfileSaver) {
         mutableStateOf(
             UserProfile(
-                fullName = "John Doe",
-                username = "@JD01",
-                email = "johndoe@example.com",
+                fullName = "Alex Taylor",
+                username = "@alex",
+                email = "alex@example.com",
                 currency = Currency.USD
             )
         )
@@ -77,6 +100,7 @@ fun ExpenseApp() {
     var expenses by remember { mutableStateOf(ExpenseMockData.initialExpenses) }
     var selectedGroup by remember { mutableStateOf<ExpenseGroup?>(null) }
     var activeExpenseItem by remember { mutableStateOf<ExpenseItem?>(null) }
+    var showChooseGroupSheet by remember { mutableStateOf(false) }
 
     val johnNetBalance = calculateNetBalanceForMember(ExpenseMockData.john.id, expenses)
 
@@ -91,7 +115,7 @@ fun ExpenseApp() {
     }
 
     val currentRoute = currentDestination?.route
-    val isFullScreen = (ProfileRoutes.fullScreenRoutes + ExpenseRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes).any { route ->
+    val isFullScreen = (ProfileRoutes.fullScreenRoutes + ExpenseRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes + ReceiptRoutes.ROUTE).any { route ->
         currentRoute == route || (route.contains("?") && currentRoute?.startsWith(route.substringBefore("?")) == true)
     }
     val showBottomBar = !isFullScreen
@@ -129,23 +153,60 @@ fun ExpenseApp() {
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
-                    currentUserId = ExpenseMockData.john.id,
-                    groups = groups,
-                    expenses = expenses,
-                    onGroupSelectedForAdd = { grp ->
-                        selectedGroup = grp
-                        navController.navigate(ExpenseRoutes.ADD)
-                    },
-                    onExpenseSelected = { item ->
-                        activeExpenseItem = item
-                        navController.navigate(ExpenseRoutes.DETAILS)
-                    },
-                    onPayMyShare = { navController.navigate(PaymentRoutes.PAY_MY_SHARE) },
-                    onPaymentMethods = { navController.navigate(PaymentRoutes.PAYMENT_METHODS) }
+                    groups = groupsState.groups,
+                    onAddExpense = { showChooseGroupSheet = true },
+                    onPayShare = { navController.navigate(PaymentRoutes.PAY_MY_SHARE) },
+                    onSeeAllGroups = { navController.navigateToTab(Screen.Groups.route) },
+                    onGroupClick = { groupId -> navController.navigate(GroupsRoutes.overview(groupId)) },
+                    onSeeAllActivity = { navController.navigateToTab(Screen.Activity.route) },
+                    onProfileClick = { navController.navigateToTab(Screen.Profile.route) },
                 )
+                if (showChooseGroupSheet) {
+                    ChooseGroupSheet(
+                        groups = groups,
+                        onGroupSelected = { grp ->
+                            showChooseGroupSheet = false
+                            selectedGroup = grp
+                            navController.navigate(ExpenseRoutes.ADD)
+                        },
+                        onDismiss = { showChooseGroupSheet = false }
+                    )
+                }
             }
             groupsGraph(navController, groupsState)
-            composable(Screen.Activity.route) { ActivityScreen() }
+
+            navigation(startDestination = ActivityRoutes.HISTORY, route = Screen.Activity.route) {
+                composable(ActivityRoutes.HISTORY) {
+                    ActivityScreen(
+                        groups = groupsState.groups,
+                        onOpenNotifications = { navController.navigate(ActivityRoutes.NOTIFICATIONS) },
+                        onEntryClick = { entryId -> navController.navigateToReceipt(entryId) },
+                    )
+                }
+                composable(ActivityRoutes.NOTIFICATIONS) {
+                    NotificationsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
+                        onNotificationClick = {},
+                    )
+                }
+            }
+
+            receiptScreen(
+                onBack = { navController.popBackStack() },
+                findExpense = { id ->
+                    expenses.firstOrNull { it.id == id }?.let { item ->
+                        ReceiptExpense(
+                            expenseId = item.id,
+                            title = item.title,
+                            groupName = item.group.name,
+                            amountCents = item.amount.toCents(),
+                            paidByName = item.payer.fullName,
+                            splitCount = item.splits.count { it.isSelected },
+                        )
+                    }
+                },
+            )
 
             // Expense Flow Screens
             composable(ExpenseRoutes.ADD) {
@@ -180,10 +241,12 @@ fun ExpenseApp() {
             }
 
             composable(ExpenseRoutes.DETAILS) {
+                val item = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense
                 ExpenseDetailsScreen(
-                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    expenseItem = item,
                     onEditExpense = { navController.navigate(ExpenseRoutes.EDIT) },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onOpenReceipt = { navController.navigateToReceipt(item.id) }
                 )
             }
 

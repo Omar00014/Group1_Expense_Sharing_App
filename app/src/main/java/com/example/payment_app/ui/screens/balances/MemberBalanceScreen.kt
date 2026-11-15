@@ -1,4 +1,4 @@
-package com.example.payment_app
+package com.example.payment_app.ui.screens.balances
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

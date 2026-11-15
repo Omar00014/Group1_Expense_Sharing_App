@@ -1,4 +1,4 @@
-package com.example.payment_app
+package com.example.payment_app.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,348 +1,228 @@
 package com.example.payment_app.ui.screens
 
-import androidx.compose.foundation.background
+import com.example.payment_app.ui.viewmodel.HomeUiState
+import com.example.payment_app.ui.viewmodel.HomeViewModel
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.payment_app.ui.screens.expense.ChooseGroupSheet
-import com.example.payment_app.ui.screens.expense.ExpenseGroup
-import com.example.payment_app.ui.screens.expense.ExpenseItem
-import com.example.payment_app.ui.screens.expense.ExpenseMockData
-import com.example.payment_app.ui.screens.expense.calculateGroupNetBalanceForMember
-import com.example.payment_app.ui.screens.expense.calculateNetBalanceForMember
-import com.example.payment_app.ui.screens.expense.formatNetBalance
-import com.example.payment_app.ui.screens.profile.ScreenTitle
-import com.example.payment_app.ui.screens.profile.SettingsCard
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.payment_app.data.repository.FakeOverviewRepository
+import com.example.payment_app.data.model.ActivityEntry
+import com.example.payment_app.ui.components.GroupSummaryCard
+import com.example.payment_app.ui.components.InitialAvatar
+import com.example.payment_app.ui.components.SectionHeader
+import com.example.payment_app.ui.components.formatMoney
+import com.example.payment_app.ui.components.netBalanceCents
+import com.example.payment_app.ui.screens.groups.GroupSummary
+import com.example.payment_app.ui.screens.groups.sampleGroups
 import com.example.payment_app.ui.theme.Payment_AppTheme
-import java.util.Locale
+import kotlin.math.abs
 
 @Composable
 fun HomeScreen(
+    groups: List<GroupSummary>,
+    onAddExpense: () -> Unit,
+    onPayShare: () -> Unit,
+    onSeeAllGroups: () -> Unit,
+    onGroupClick: (groupId: String) -> Unit,
+    onSeeAllActivity: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier,
-    currentUserId: String = ExpenseMockData.john.id,
-    groups: List<ExpenseGroup> = ExpenseMockData.sampleGroups,
-    expenses: List<ExpenseItem> = ExpenseMockData.initialExpenses,
-    onGroupSelectedForAdd: (ExpenseGroup) -> Unit = {},
-    onExpenseSelected: (ExpenseItem) -> Unit = {},
-    onPayMyShare: () -> Unit = {},
-    onPaymentMethods: () -> Unit = {}
+    viewModel: HomeViewModel = viewModel(),
 ) {
-    var showChooseGroupSheet by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HomeContent(
+        uiState = uiState,
+        groups = groups,
+        onAddExpense = onAddExpense,
+        onPayShare = onPayShare,
+        onSeeAllGroups = onSeeAllGroups,
+        onGroupClick = onGroupClick,
+        onSeeAllActivity = onSeeAllActivity,
+        onProfileClick = onProfileClick,
+        modifier = modifier,
+    )
+}
 
-    // Dynamic responsiveness calculations for John Doe
-    val netOwedBalance = calculateNetBalanceForMember(currentUserId, expenses)
-    val formattedNetBalance = formatNetBalance(netOwedBalance)
-    val balanceColor = if (netOwedBalance > 0) Color(0xFF81C784) else if (netOwedBalance < 0) Color(0xFFE57373) else MaterialTheme.colorScheme.onSurface
-
-    val responsiveGroups = groups.map { grp ->
-        val grpNet = calculateGroupNetBalanceForMember(currentUserId, grp.id, expenses)
-        val grpExpenseCount = expenses.count { it.group.id == grp.id }
-        grp.copy(netBalance = grpNet, expenseCount = grpExpenseCount)
-    }
-
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Header: Welcome + Payment Methods Shortcut
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = "Welcome back,",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                    Text(
-                        text = "John Doe",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                        .clickable(onClick = onPaymentMethods),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CreditCard,
-                        contentDescription = "Payment methods",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            // Title
-            ScreenTitle("Overview & Expenses")
-
-            // Balance Summary Card (Responsive)
-            SettingsCard {
+@Composable
+fun HomeContent(
+    uiState: HomeUiState,
+    groups: List<GroupSummary>,
+    onAddExpense: () -> Unit,
+    onPayShare: () -> Unit,
+    onSeeAllGroups: () -> Unit,
+    onGroupClick: (groupId: String) -> Unit,
+    onSeeAllActivity: () -> Unit,
+    onProfileClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (netOwedBalance >= 0) "Total net owed to you" else "Total net you owe",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${uiState.greeting}, ${uiState.userFirstName}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = formattedNetBalance,
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = balanceColor
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "${responsiveGroups.size} active groups · ${expenses.size} total expenses",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                InitialAvatar(
+                    name = uiState.userFirstName,
+                    modifier = Modifier.clickable(onClickLabel = "Open profile", onClick = onProfileClick),
                 )
             }
+        }
 
-            // Active Debt / Quick Pay Share Card
+        item { NetBalanceHeader(netBalanceCents = netBalanceCents(groups)) }
+
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = onAddExpense, modifier = Modifier.weight(1f)) { Text("Add Expense") }
+                OutlinedButton(onClick = onPayShare, modifier = Modifier.weight(1f)) { Text("Pay Share") }
+            }
+        }
+
+        item { SectionHeader(title = "My Groups", actionLabel = "See all", onAction = onSeeAllGroups) }
+        if (groups.isEmpty()) {
+            item { EmptyText("You're not in any groups yet.") }
+        }
+        items(groups, key = { it.id }) { group ->
+            GroupSummaryCard(group = group, onClick = { onGroupClick(group.id) })
+        }
+
+        item { SectionHeader(title = "Recent Activity", actionLabel = "See all", onAction = onSeeAllActivity) }
+        if (uiState.recentActivity.isEmpty()) {
+            item { EmptyText("No activity yet.") }
+        } else item {
             Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                shape = MaterialTheme.shapes.medium,
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Home,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(
-                                    text = "Apartment",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                )
-                                Text(
-                                    text = "3 members · 7 expenses",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                )
-                            }
-                        }
-
-                        Text(
-                            text = "$14.50",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    }
-
-                    Text(
-                        text = "You owe Jordan $14.50 for Apartment.",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-
-                    Button(
-                        onClick = onPayMyShare,
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                    ) {
-                        Text(
-                            text = "Pay my share ($14.50)",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        )
-                    }
-                }
-            }
-
-            // Recent Expenses Section Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Recent Expenses",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    "${expenses.size} items",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // Expense Item Cards
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                expenses.forEach { expense ->
-                    SettingsCard(onClick = { onExpenseSelected(expense) }) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = expense.title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(Modifier.height(2.dp))
-                                Text(
-                                    text = "${expense.group.name} · Paid by ${expense.payer.fullName}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = "$${String.format(Locale.US, "%.2f", expense.amount)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                Column {
+                    uiState.recentActivity.forEachIndexed { index, entry ->
+                        if (index > 0) HorizontalDivider()
+                        RecentActivityRow(entry = entry, onClick = onSeeAllActivity)
                     }
                 }
             }
         }
+    }
+}
 
-        // Floating Action Button to add expense
-        FloatingActionButton(
-            onClick = { showChooseGroupSheet = true },
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(20.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Expense")
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    "Add expense",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+@Composable
+private fun NetBalanceHeader(netBalanceCents: Long, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = when {
+                netBalanceCents > 0 -> "You are owed (net)"
+                netBalanceCents < 0 -> "You owe (net)"
+                else -> "You're all settled up"
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = formatMoney(abs(netBalanceCents)),
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+@Composable
+private fun RecentActivityRow(entry: ActivityEntry, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = entry.title,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "${entry.groupName} · ${entry.detail}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
+        Spacer(Modifier.width(8.dp))
+        Text(text = formatMoney(entry.amountCents), style = MaterialTheme.typography.bodyMedium)
+    }
+}
 
-        // Modal Bottom Sheet over HomeScreen
-        if (showChooseGroupSheet) {
-            ChooseGroupSheet(
-                groups = responsiveGroups,
-                onGroupSelected = { grp ->
-                    showChooseGroupSheet = false
-                    onGroupSelectedForAdd(grp)
-                },
-                onDismiss = { showChooseGroupSheet = false }
+@Composable
+private fun EmptyText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun HomeContentPreview() {
+    Payment_AppTheme() {
+        Surface {
+            HomeContent(
+                uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 9),
+                groups = sampleGroups,
+                onAddExpense = {}, onPayShare = {}, onSeeAllGroups = {}, onGroupClick = {},
+                onSeeAllActivity = {}, onProfileClick = {},
             )
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 760)
+@Preview(showBackground = true, heightDp = 800)
 @Composable
-private fun HomeScreenPreview() {
-    Payment_AppTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            HomeScreen()
+private fun HomeContentDarkPreview() {
+    Payment_AppTheme() {
+        Surface {
+            HomeContent(
+                uiState = HomeViewModel.buildState(FakeOverviewRepository(), hour = 20),
+                groups = sampleGroups,
+                onAddExpense = {}, onPayShare = {}, onSeeAllGroups = {}, onGroupClick = {},
+                onSeeAllActivity = {}, onProfileClick = {},
+            )
         }
     }
 }
