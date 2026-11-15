@@ -20,11 +20,12 @@ data class ReceiptUiState(
 class ReceiptViewModel(
     expenseId: String,
     repository: ReceiptRepository = FakeReceiptRepository(),
+    fallbackExpense: ReceiptExpense? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         ReceiptUiState(
-            expense = repository.expense(expenseId),
+            expense = repository.expense(expenseId) ?: fallbackExpense,
             receipt = repository.receipt(expenseId),
         )
     )

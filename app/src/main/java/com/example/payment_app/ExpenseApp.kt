@@ -23,6 +23,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.payment_app.data.model.ReceiptExpense
+import com.example.payment_app.ui.components.toCents
 import com.example.payment_app.ui.screens.ActivityScreen
 import com.example.payment_app.ui.screens.HomeScreen
 import com.example.payment_app.ui.screens.NotificationsScreen
@@ -62,7 +64,6 @@ private object ActivityRoutes {
     const val NOTIFICATIONS = "activity/notifications"
 }
 
-/** Switch bottom-nav tab the same way the navigation bar does. */
 private fun NavHostController.navigateToTab(route: String) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) {
@@ -160,7 +161,6 @@ fun ExpenseApp() {
                     onSeeAllActivity = { navController.navigateToTab(Screen.Activity.route) },
                     onProfileClick = { navController.navigateToTab(Screen.Profile.route) },
                 )
-                // 13 · Choose group pop-up, then on to Add expense (14)
                 if (showChooseGroupSheet) {
                     ChooseGroupSheet(
                         groups = groups,
@@ -175,13 +175,11 @@ fun ExpenseApp() {
             }
             groupsGraph(navController, groupsState)
 
-            // Activity tab: nested graph so the tab stays highlighted on Notifications
             navigation(startDestination = ActivityRoutes.HISTORY, route = Screen.Activity.route) {
                 composable(ActivityRoutes.HISTORY) {
                     ActivityScreen(
                         groups = groupsState.groups,
                         onOpenNotifications = { navController.navigate(ActivityRoutes.NOTIFICATIONS) },
-                        // Temporary: opens the receipt until Activity uses the expense data
                         onEntryClick = { entryId -> navController.navigateToReceipt(entryId) },
                     )
                 }
@@ -189,13 +187,26 @@ fun ExpenseApp() {
                     NotificationsScreen(
                         onBack = { navController.popBackStack() },
                         onOpenSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
-                        onNotificationClick = { /* TODO: open the expense / payment it is about */ },
+                        onNotificationClick = {},
                     )
                 }
             }
 
-            // 24 · Receipt. Other pages open it with navController.navigateToReceipt(expenseId)
-            receiptScreen(onBack = { navController.popBackStack() })
+            receiptScreen(
+                onBack = { navController.popBackStack() },
+                findExpense = { id ->
+                    expenses.firstOrNull { it.id == id }?.let { item ->
+                        ReceiptExpense(
+                            expenseId = item.id,
+                            title = item.title,
+                            groupName = item.group.name,
+                            amountCents = item.amount.toCents(),
+                            paidByName = item.payer.fullName,
+                            splitCount = item.splits.count { it.isSelected },
+                        )
+                    }
+                },
+            )
 
             // Expense Flow Screens
             composable(ExpenseRoutes.ADD) {
@@ -230,10 +241,12 @@ fun ExpenseApp() {
             }
 
             composable(ExpenseRoutes.DETAILS) {
+                val item = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense
                 ExpenseDetailsScreen(
-                    expenseItem = activeExpenseItem ?: ExpenseMockData.sampleDinnerExpense,
+                    expenseItem = item,
                     onEditExpense = { navController.navigate(ExpenseRoutes.EDIT) },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onOpenReceipt = { navController.navigateToReceipt(item.id) }
                 )
             }
 

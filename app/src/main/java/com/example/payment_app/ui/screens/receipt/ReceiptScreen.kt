@@ -66,7 +66,10 @@ fun ReceiptScreen(
     expenseId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ReceiptViewModel = viewModel(key = "receipt-$expenseId") { ReceiptViewModel(expenseId) },
+    fallbackExpense: ReceiptExpense? = null,
+    viewModel: ReceiptViewModel = viewModel(key = "receipt-$expenseId") {
+        ReceiptViewModel(expenseId, fallbackExpense = fallbackExpense)
+    },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current

@@ -5,7 +5,6 @@ import com.example.payment_app.data.model.ActivityType
 import com.example.payment_app.data.model.AppNotification
 import com.example.payment_app.data.model.NotificationKind
 
-/** Groups come from GroupsState (Groups pages), not from here. */
 interface OverviewRepository {
     fun currentUserFirstName(): String
     fun activity(): List<ActivityEntry>

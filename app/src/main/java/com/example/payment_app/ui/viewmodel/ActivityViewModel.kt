@@ -16,7 +16,6 @@ enum class ActivityTypeFilter(val label: String) {
     SETTLEMENTS("Settlements"),
 }
 
-/** Groups and the net balance are not in here: they come from GroupsState. */
 data class ActivityUiState(
     val typeFilter: ActivityTypeFilter = ActivityTypeFilter.ALL,
     val groupFilterId: String? = null,

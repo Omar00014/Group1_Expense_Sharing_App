@@ -1,5 +1,6 @@
 package com.example.payment_app
 
+import com.example.payment_app.data.model.ReceiptExpense
 import com.example.payment_app.data.model.ReceiptFileType
 import com.example.payment_app.data.repository.FakeReceiptRepository
 import com.example.payment_app.ui.screens.receipt.ReceiptRoutes
@@ -20,6 +21,25 @@ class ReceiptViewModelTest {
         assertEquals("Dinner", state.expense?.title)
         val receipt = assertNotNullAndGet(state.receipt)
         assertEquals(8_800L, receipt.lineItemsTotalCents)
+    }
+
+    @Test
+    fun kylesExpenseIds_areKnown() {
+        val dinner = ReceiptViewModel("e1", repository).uiState.value
+        assertEquals("John Doe", dinner.expense?.paidByName)
+        assertNotNull(dinner.receipt)
+
+        val groceries = ReceiptViewModel("e2", repository).uiState.value
+        assertEquals("Groceries", groceries.expense?.title)
+        assertNull(groceries.receipt)
+    }
+
+    @Test
+    fun unknownId_usesFallbackExpense() {
+        val added = ReceiptExpense("new_expense", "Taxi", "Weekend Trip", 2_000, "Jordan", 4)
+        val state = ReceiptViewModel("new_expense", repository, fallbackExpense = added).uiState.value
+        assertEquals("Taxi", state.expense?.title)
+        assertNull(state.receipt)
     }
 
     @Test

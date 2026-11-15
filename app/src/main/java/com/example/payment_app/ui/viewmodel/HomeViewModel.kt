@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Groups and the net balance are not in here: they come from GroupsState. */
 data class HomeUiState(
     val greeting: String,
     val userFirstName: String,

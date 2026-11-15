@@ -65,7 +65,6 @@ class GroupBalanceTest {
 
     @Test
     fun netBalance_isSumOfGroupBalances() {
-        // Weekend Trip +62.00 and Apartment -14.50 (Kian's sample groups), as in the wireframe.
         assertEquals(4_750L, netBalanceCents(sampleGroups))
         assertEquals(0L, netBalanceCents(emptyList()))
     }
