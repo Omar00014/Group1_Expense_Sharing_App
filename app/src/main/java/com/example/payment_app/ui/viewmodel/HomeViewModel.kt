@@ -14,13 +14,12 @@ import kotlinx.coroutines.flow.asStateFlow
 data class HomeUiState(
     val greeting: String,
     val userFirstName: String,
-    /** Sum of the user's balance across all groups. Positive = owed to the user. */
     val netBalanceCents: Long,
     val groups: List<GroupSummary>,
     val recentActivity: List<ActivityEntry>,
 )
 
-/** State for screen 04 · Home / overview. */
+
 class HomeViewModel(
     repository: OverviewRepository = FakeOverviewRepository(),
     currentHour: () -> Int = { Calendar.getInstance().get(Calendar.HOUR_OF_DAY) },
@@ -30,7 +29,6 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     companion object {
-        /** How many entries the "Recent Activity" section shows before "See all". */
         const val RECENT_ACTIVITY_LIMIT = 3
 
         fun buildState(repository: OverviewRepository, hour: Int): HomeUiState {

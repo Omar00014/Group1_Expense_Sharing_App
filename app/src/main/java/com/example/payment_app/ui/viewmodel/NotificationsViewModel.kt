@@ -17,7 +17,6 @@ data class NotificationsUiState(
     val read: List<AppNotification> get() = notifications.filter { it.isRead }
 }
 
-/** State for screen 06 · Notifications. */
 class NotificationsViewModel(
     repository: OverviewRepository = FakeOverviewRepository(),
 ) : ViewModel() {

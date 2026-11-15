@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.example.payment_app.data.model.GroupSummary
 import com.example.payment_app.ui.theme.Payment_AppTheme
 
-/** Round avatar showing the first letter of [name]. Stands in for profile pictures for now. */
 @Composable
 fun InitialAvatar(
     name: String,
@@ -51,7 +50,6 @@ fun InitialAvatar(
     }
 }
 
-/** Section title with an optional action on the right, e.g. "My Groups ..... See all". */
 @Composable
 fun SectionHeader(
     title: String,
@@ -75,7 +73,6 @@ fun SectionHeader(
     }
 }
 
-/** Colour for a balance: positive (owed to you) uses primary, negative (you owe) uses error. */
 @Composable
 fun balanceColor(cents: Long): Color = when {
     cents > 0 -> MaterialTheme.colorScheme.primary
@@ -83,14 +80,12 @@ fun balanceColor(cents: Long): Color = when {
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }
 
-/** "owed to you", "you owe" or "settled", shown under a balance. */
 fun balanceCaption(cents: Long): String = when {
     cents > 0 -> "owed to you"
     cents < 0 -> "you owe"
     else -> "settled"
 }
 
-/** Card for one group on the Home page. */
 @Composable
 fun GroupSummaryCard(
     group: GroupSummary,

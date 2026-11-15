@@ -46,7 +46,6 @@ import com.example.payment_app.ui.components.SectionHeader
 import com.example.payment_app.ui.components.formatMoney
 import com.example.payment_app.ui.theme.Payment_AppTheme
 
-/** Screen 06 · Notifications, connected to its ViewModel. Use this from navigation. */
 @Composable
 fun NotificationsScreen(
     onBack: () -> Unit,
@@ -69,7 +68,7 @@ fun NotificationsScreen(
     )
 }
 
-/** Stateless UI for screen 06 · Notifications. */
+
 @Composable
 fun NotificationsContent(
     uiState: NotificationsUiState,
@@ -159,13 +158,13 @@ fun NotificationsContent(
     }
 }
 
-/** Badge text for unread notifications, e.g. "NEW" or "DUE". */
+
 private fun badgeLabel(kind: NotificationKind): String = when (kind) {
     NotificationKind.PAYMENT_DUE -> "DUE"
     else -> "NEW"
 }
 
-/** Right-hand text for read notifications: the amount, or "Background" for sync events. */
+
 private fun trailingLabel(notification: AppNotification): String =
     if (notification.kind == NotificationKind.SYNC) "Background"
     else notification.amountCents?.let { formatMoney(it) } ?: ""

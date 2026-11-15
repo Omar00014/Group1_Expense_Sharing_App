@@ -40,7 +40,6 @@ import com.example.payment_app.ui.components.formatMoney
 import com.example.payment_app.ui.theme.Payment_AppTheme
 import kotlin.math.abs
 
-/** Screen 04 · Home / overview, connected to its ViewModel. Use this from navigation. */
 @Composable
 fun HomeScreen(
     onAddExpense: () -> Unit,
@@ -65,7 +64,6 @@ fun HomeScreen(
     )
 }
 
-/** Stateless UI for screen 04 · Home / overview. */
 @Composable
 fun HomeContent(
     uiState: HomeUiState,

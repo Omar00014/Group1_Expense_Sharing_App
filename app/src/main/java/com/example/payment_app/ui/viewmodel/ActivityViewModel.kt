@@ -19,10 +19,8 @@ enum class ActivityTypeFilter(val label: String) {
 
 data class ActivityUiState(
     val typeFilter: ActivityTypeFilter = ActivityTypeFilter.ALL,
-    /** Selected group id, or null for "All groups". */
     val groupFilterId: String? = null,
     val groups: List<GroupSummary> = emptyList(),
-    /** Entries after applying both filters. */
     val entries: List<ActivityEntry> = emptyList(),
     val netBalanceCents: Long = 0,
     val isShowingCachedData: Boolean = false,
@@ -31,7 +29,6 @@ data class ActivityUiState(
         get() = groups.firstOrNull { it.id == groupFilterId }?.name ?: "All groups"
 }
 
-/** State for screen 05 · Transaction history. */
 class ActivityViewModel(
     private val repository: OverviewRepository = FakeOverviewRepository(),
 ) : ViewModel() {
@@ -54,7 +51,6 @@ class ActivityViewModel(
         _uiState.update { it.copy(typeFilter = filter, entries = filterEntries(allEntries, filter, it.groupFilterId)) }
     }
 
-    /** Pass null to show all groups. */
     fun onGroupFilterChange(groupId: String?) {
         _uiState.update { it.copy(groupFilterId = groupId, entries = filterEntries(allEntries, it.typeFilter, groupId)) }
     }

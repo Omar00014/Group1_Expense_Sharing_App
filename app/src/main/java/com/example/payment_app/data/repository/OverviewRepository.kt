@@ -6,23 +6,15 @@ import com.example.payment_app.data.model.AppNotification
 import com.example.payment_app.data.model.GroupSummary
 import com.example.payment_app.data.model.NotificationKind
 
-/**
- * Source of the data shown on the Overview & activity pages.
- *
- * Only [FakeOverviewRepository] exists for now (frontend only). When the backend is added,
- * create a real implementation of this interface and pass it to the ViewModels instead.
- */
 interface OverviewRepository {
     fun currentUserFirstName(): String
     fun groups(): List<GroupSummary>
     fun activity(): List<ActivityEntry>
     fun notifications(): List<AppNotification>
 
-    /** True when the data comes from the local cache because the device is offline. */
     fun isShowingCachedData(): Boolean
 }
 
-/** Hardcoded sample data matching the lo-fi wireframes (screens 04, 05 and 06). */
 class FakeOverviewRepository : OverviewRepository {
 
     override fun currentUserFirstName(): String = "Alex"

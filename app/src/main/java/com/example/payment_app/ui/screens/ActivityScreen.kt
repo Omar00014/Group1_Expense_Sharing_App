@@ -56,7 +56,6 @@ import com.example.payment_app.ui.components.countLabel
 import com.example.payment_app.ui.components.formatMoney
 import com.example.payment_app.ui.theme.Payment_AppTheme
 
-/** Screen 05 · Transaction history, connected to its ViewModel. Use this from navigation. */
 @Composable
 fun ActivityScreen(
     onOpenNotifications: () -> Unit,
@@ -75,7 +74,6 @@ fun ActivityScreen(
     )
 }
 
-/** Stateless UI for screen 05 · Transaction history. */
 @Composable
 fun ActivityContent(
     uiState: ActivityUiState,
@@ -155,7 +153,6 @@ fun ActivityContent(
     }
 }
 
-/** Shows that the list comes from the local cache (offline availability NFR). */
 @Composable
 private fun CachedChip() {
     AssistChip(

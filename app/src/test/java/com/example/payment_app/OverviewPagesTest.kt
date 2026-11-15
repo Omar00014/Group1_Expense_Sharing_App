@@ -56,7 +56,6 @@ class HomeViewModelTest {
     @Test
     fun netBalance_isSumOfGroupBalances() {
         val state = HomeViewModel(FakeOverviewRepository(), currentHour = { 9 }).uiState.value
-        // Weekend Trip +62.00 and Apartment -14.50, as in the wireframe.
         assertEquals(4_750L, state.netBalanceCents)
         assertEquals("Good morning", state.greeting)
         assertEquals("Alex", state.userFirstName)
@@ -104,7 +103,6 @@ class ActivityViewModelTest {
         assertTrue(state.entries.isNotEmpty())
         assertTrue(state.entries.all { it.groupId == "apartment" && it.type == ActivityType.EXPENSE })
 
-        // Clearing the group filter keeps the type filter.
         viewModel.onGroupFilterChange(null)
         assertEquals(ActivityTypeFilter.EXPENSES, viewModel.uiState.value.typeFilter)
         assertEquals(
