@@ -81,7 +81,7 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "JD",
+                    text = "A",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
