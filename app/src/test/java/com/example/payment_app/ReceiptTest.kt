@@ -26,7 +26,7 @@ class ReceiptViewModelTest {
     @Test
     fun kylesExpenseIds_areKnown() {
         val dinner = ReceiptViewModel("e1", repository).uiState.value
-        assertEquals("John Doe", dinner.expense?.paidByName)
+        assertEquals("alex", dinner.expense?.paidByName)
         assertNotNull(dinner.receipt)
 
         val groceries = ReceiptViewModel("e2", repository).uiState.value

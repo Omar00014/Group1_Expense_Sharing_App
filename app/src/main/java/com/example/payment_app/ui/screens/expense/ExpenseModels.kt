@@ -83,15 +83,13 @@ fun formatNetBalance(balance: Double): String {
     }
 }
 
-// Mock dataset for John Doe (@JD01) as the active profile
 object ExpenseMockData {
-    val john = ExpenseMember("user_john", "John Doe", "@JD01", "JD")
-    val jordan = ExpenseMember("1", "Jordan", "@jordan", "J")
-    val alex = ExpenseMember("2", "Alex Taylor", "@alex", "A")
+    val alex = ExpenseMember("1", "Alex Taylor", "@alex", "A")
+    val jordan = ExpenseMember("2", "Jordan", "@jordan", "J")
     val sam = ExpenseMember("3", "Sam", "@sam", "S")
     val casey = ExpenseMember("4", "Casey", "@casey", "C")
 
-    val allMembers = listOf(john, alex, jordan, sam, casey)
+    val allMembers = listOf(alex, jordan, sam, casey)
 
     val weekendTripGroup = ExpenseGroup(
         id = "g1",
@@ -112,7 +110,7 @@ object ExpenseMockData {
     val sampleGroups = listOf(weekendTripGroup, apartmentGroup)
 
     val dinnerSplits = listOf(
-        ExpenseSplit(john, 22.00, true),
+        ExpenseSplit(casey, 22.00, true),
         ExpenseSplit(alex, 22.00, true),
         ExpenseSplit(jordan, 22.00, true),
         ExpenseSplit(sam, 22.00, true)
@@ -120,7 +118,7 @@ object ExpenseMockData {
 
     val groceriesSplits = listOf(
         ExpenseSplit(jordan, 14.50, true),
-        ExpenseSplit(john, 14.50, true),
+        ExpenseSplit(alex, 14.50, true),
         ExpenseSplit(casey, 14.50, true)
     )
 
@@ -129,7 +127,7 @@ object ExpenseMockData {
         title = "Dinner",
         amount = 88.00,
         currency = "USD",
-        payer = john,
+        payer = alex,
         group = weekendTripGroup,
         date = "Today, 12:30 PM",
         splitType = "Equal split",

@@ -102,7 +102,7 @@ fun ExpenseApp() {
     var activeExpenseItem by remember { mutableStateOf<ExpenseItem?>(null) }
     var showChooseGroupSheet by remember { mutableStateOf(false) }
 
-    val johnNetBalance = calculateNetBalanceForMember(ExpenseMockData.john.id, expenses)
+    val alexNetBalance = calculateNetBalanceForMember(ExpenseMockData.alex.id, expenses)
 
     // Payment state
     var savedCards by remember { mutableStateOf(defaultSavedCards) }
@@ -372,7 +372,7 @@ fun ExpenseApp() {
                 composable(ProfileRoutes.HOME) {
                     ProfileScreen(
                         profile = profile,
-                        netOwedBalance = johnNetBalance,
+                        netOwedBalance = alexNetBalance,
                         onCurrencyChange = { profile = profile.copy(currency = it) },
                         onEditProfile = { navController.navigate(ProfileRoutes.EDIT) },
                         onNotificationSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
