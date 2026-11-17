@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 val DarkBackground = Color(0xFF171A22)
 val PillLight = Color(0xFFEFEFF1)
 
-// Additional authentication colors from the local implementation
+// Additional colors retained from the local implementation
 val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
@@ -43,7 +43,7 @@ fun LogoCircle(size: Dp) {
     }
 }
 
-// Rounded text input
+// Rounded text input used by Login and Sign Up
 @Composable
 fun AuthTextField(
     placeholder: String,
@@ -68,7 +68,7 @@ fun AuthTextField(
     )
 }
 
-// Authentication button
+// Shared authentication button
 @Composable
 fun AuthButton(
     text: String,
@@ -137,7 +137,7 @@ fun LoginScreen(
     }
 }
 
-// Preview
+// Android Studio preview
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
