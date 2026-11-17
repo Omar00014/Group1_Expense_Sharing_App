@@ -209,7 +209,7 @@ private fun ProfileScreenPreview() {
     Payment_AppTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             ProfileScreen(
-                profile = UserProfile("John Doe", "@JD01", "johndoe@example.com", Currency.USD),
+                profile = UserProfile("Alex Taylor", "@alex", "alex@example.com", Currency.USD),
                 onCurrencyChange = {},
                 onEditProfile = {},
                 onNotificationSettings = {}

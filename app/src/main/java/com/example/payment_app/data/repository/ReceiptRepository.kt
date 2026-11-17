@@ -26,7 +26,7 @@ class FakeReceiptRepository : ReceiptRepository {
     )
 
     private val expenses = listOf(
-        ReceiptExpense("e1", "Dinner", "Weekend Trip", 8_800, "John Doe", 4),
+        ReceiptExpense("e1", "Dinner", "Weekend Trip", 8_800, "Alex Taylor", 4),
         ReceiptExpense("e2", "Groceries", "Apartment", 4_350, "Jordan", 3),
         ReceiptExpense("a1", "Dinner", "Weekend Trip", 8_800, "Jordan", 4),
         ReceiptExpense("a2", "Groceries", "Apartment", 4_350, "You", 3),
