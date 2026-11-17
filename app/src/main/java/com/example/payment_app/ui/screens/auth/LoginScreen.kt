@@ -17,15 +17,14 @@ import androidx.compose.ui.unit.sp
 
 // 仮の色。Figmaの色コードが決まったらここだけ直す
 // replace with the actual Figma colors L20~22
-val AuthBackground = Color(0xFF1A1D23)
-val AuthFieldColor = Color(0xFFF0F0F0)
-val AuthButtonColor = Color(0xFFD9D9D9)
+val DarkBackground = Color(0xFF171A22)
+val PillLight = Color(0xFFEFEFF1)
 
 //Logo Circle 丸いロゴ
 @Composable
 fun LogoCircle(size: Dp) {
     Box(
-        modifier = Modifier.size(size).background(AuthButtonColor, CircleShape),
+        modifier = Modifier.size(size).background(PillLight, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -47,8 +46,8 @@ fun AuthTextField(placeholder: String, value: String, onValueChange: (String) ->
         singleLine = true,
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = AuthFieldColor,
-            unfocusedContainerColor = AuthFieldColor,
+            focusedContainerColor = PillLight,
+            unfocusedContainerColor = PillLight,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = Color.Black,
@@ -66,7 +65,7 @@ fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit 
         modifier = modifier.height(52.dp),
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AuthButtonColor,
+            containerColor = PillLight,
             contentColor = Color.Black
         )
     ) {
@@ -75,14 +74,19 @@ fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit 
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    onLogin: () -> Unit = {},
+    onSignUp: () -> Unit = {},
+    onForgotPassword: () -> Unit = {}
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(AuthBackground)
+            .background(DarkBackground)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -97,11 +101,11 @@ fun LoginScreen() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AuthButton("Sign Up", Modifier.weight(1f))
-            AuthButton("Forgot\nPassword?", Modifier.weight(1f))
+            AuthButton("Sign Up", Modifier.weight(1f), onSignUp)
+            AuthButton("Forgot\nPassword?", Modifier.weight(1f), onForgotPassword)
         }
         Spacer(Modifier.height(12.dp))
-        AuthButton("Log In", Modifier.fillMaxWidth())
+        AuthButton("Log In", Modifier.fillMaxWidth(), onLogin)
     }
 }
 

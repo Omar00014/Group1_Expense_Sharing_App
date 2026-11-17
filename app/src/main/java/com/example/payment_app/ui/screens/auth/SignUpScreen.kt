@@ -16,7 +16,10 @@ import androidx.compose.ui.unit.sp
 
 //Managing Input Values 入力内容を管理
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(
+    onBack: () -> Unit = {},
+    onSignUp: () -> Unit = {}
+) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -26,7 +29,7 @@ fun SignUpScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AuthBackground)
+            .background(DarkBackground)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -52,7 +55,7 @@ fun SignUpScreen() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AuthFieldColor, RoundedCornerShape(16.dp))
+                .background(PillLight, RoundedCornerShape(16.dp))
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -65,8 +68,8 @@ fun SignUpScreen() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AuthButton("Back", Modifier.weight(1f))
-            AuthButton("Sign Up", Modifier.weight(1f))
+            AuthButton("Back", Modifier.weight(1f), onBack)
+            AuthButton("Sign Up", Modifier.weight(1f), onSignUp)
         }
     }
 }
