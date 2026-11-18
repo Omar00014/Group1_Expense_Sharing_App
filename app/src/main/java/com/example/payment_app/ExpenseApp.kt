@@ -438,7 +438,10 @@ fun ExpenseApp() {
                         onEditProfile = { navController.navigate(ProfileRoutes.EDIT) },
                         onNotificationSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
                         onPaymentMethods = { navController.navigate(PaymentRoutes.PAYMENT_METHODS) },
-                        onLogout = { /* TODO */ }
+                        onLogout = { navController.navigate(AuthRoutes.LOGIN) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
                     )
                 }
                 composable(ProfileRoutes.EDIT) {
