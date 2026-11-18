@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Shared authentication colors
+// Colors shared by the authentication screens
 val DarkBackground = Color(0xFF171A22)
 val PillLight = Color(0xFFEFEFF1)
 
@@ -25,7 +25,7 @@ val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
 
-// Round placeholder logo
+// Round placeholder logo. Size sets both width and height.
 @Composable
 fun LogoCircle(size: Dp) {
     Box(
@@ -43,7 +43,7 @@ fun LogoCircle(size: Dp) {
     }
 }
 
-// Rounded text input used by Login and Sign Up
+// Rounded, light-gray text input used on Login and Sign Up.
 @Composable
 fun AuthTextField(
     placeholder: String,
@@ -68,7 +68,7 @@ fun AuthTextField(
     )
 }
 
-// Shared authentication button
+// Light-gray button. The caller decides what happens on click.
 @Composable
 fun AuthButton(
     text: String,
@@ -88,7 +88,8 @@ fun AuthButton(
     }
 }
 
-// Login screen
+// Figma 02 - Log in.
+// Navigation is passed in from ExpenseApp.kt through callbacks.
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -96,6 +97,7 @@ fun LoginScreen(
     onSignUp: () -> Unit = {},
     onForgotPassword: () -> Unit = {}
 ) {
+    // remember preserves the input values across recompositions.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -123,6 +125,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(16.dp))
 
+        // Row puts the two navigation buttons side by side.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)

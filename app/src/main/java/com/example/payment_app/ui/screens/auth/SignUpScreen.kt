@@ -16,14 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Figma 03 - Sign up / personal details.
-// Navigation is passed from ExpenseApp.kt through callbacks.
+// Navigation is passed in from ExpenseApp.kt through callbacks.
 @Composable
 fun SignUpScreen(
     onBack: () -> Unit = {},
     onSignUp: () -> Unit = {}
 ) {
-    // Text typed into each field.
-    // remember preserves values across recompositions.
+    // Text typed into each field. remember preserves values across redraws.
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -43,6 +42,7 @@ fun SignUpScreen(
 
         Spacer(Modifier.height(24.dp))
 
+        // Input fields are shared with LoginScreen.kt.
         AuthTextField("Full Name", fullName) {
             fullName = it
         }
@@ -67,7 +67,7 @@ fun SignUpScreen(
 
         Spacer(Modifier.height(8.dp))
 
-        // Label above the currency box
+        // Label above the currency box.
         Text(
             "Primary currency · USD or EUR",
             color = Color.White,
@@ -77,7 +77,7 @@ fun SignUpScreen(
 
         Spacer(Modifier.height(4.dp))
 
-        // Currency box (currently a visual placeholder)
+        // Currency box - currently a visual placeholder.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,7 +96,7 @@ fun SignUpScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Back and Sign Up buttons
+        // Back and Sign Up buttons.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
