@@ -68,7 +68,7 @@ fun calculateNetBalanceForMember(memberId: String, expenses: List<ExpenseItem>):
     return total
 }
 
-fun calculateGroupNetBalanceForMember(memberId: String, groupId: String, expenses: List<ExpenseItem>): Double {
+/*fun calculateGroupNetBalanceForMember(memberId: String, groupId: String, expenses: List<ExpenseItem>): Double {
     val groupExpenses = expenses.filter { it.group.id == groupId }
     return calculateNetBalanceForMember(memberId, groupExpenses)
 }
@@ -81,7 +81,7 @@ fun formatNetBalance(balance: Double): String {
         balance < 0 -> "-$$formattedVal"
         else -> "$0.00"
     }
-}
+}*/
 
 object ExpenseMockData {
     val alex = ExpenseMember("1", "Alex Taylor", "@alex", "A")
