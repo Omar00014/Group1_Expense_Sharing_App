@@ -23,7 +23,7 @@ import com.example.payment_app.R
 val DarkBackground = Color(0xFF010516)
 val PillLight = Color(0xFFEFEFF1)
 
-// Additional colors retained from the local implementation
+// Additional authentication colors
 val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
