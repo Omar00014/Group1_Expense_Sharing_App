@@ -3,21 +3,24 @@ package com.example.payment_app.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.payment_app.R
 
 // Colors shared by the authentication screens
-val DarkBackground = Color(0xFF171A22)
+val DarkBackground = Color(0xFF010516)
 val PillLight = Color(0xFFEFEFF1)
 
 // Additional colors retained from the local implementation
@@ -25,22 +28,17 @@ val AuthBackground = Color(0xFF1A1D23)
 val AuthFieldColor = Color(0xFFF0F0F0)
 val AuthButtonColor = Color(0xFFD9D9D9)
 
-// Round placeholder logo. Size sets both width and height.
+// Actual FairShare logo
 @Composable
-fun LogoCircle(size: Dp) {
-    Box(
-        modifier = Modifier
+fun LogoCircle(size: Dp, modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(id = R.drawable.fairshare_logo),
+        contentDescription = "FairShare logo",
+        modifier = modifier
             .size(size)
-            .background(PillLight, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            "Placeholder Text\nfor Logo",
-            color = Color.Black,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
-        )
-    }
+            .clip(RoundedCornerShape(24.dp)),
+        contentScale = ContentScale.Fit
+    )
 }
 
 // Rounded, light-gray text input used on Login and Sign Up.
@@ -88,8 +86,7 @@ fun AuthButton(
     }
 }
 
-// Figma 02 - Log in.
-// Navigation is passed in from ExpenseApp.kt through callbacks.
+// Login screen with navigation callbacks
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -97,7 +94,6 @@ fun LoginScreen(
     onSignUp: () -> Unit = {},
     onForgotPassword: () -> Unit = {}
 ) {
-    // remember preserves the input values across recompositions.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -125,7 +121,6 @@ fun LoginScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Row puts the two navigation buttons side by side.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -140,7 +135,6 @@ fun LoginScreen(
     }
 }
 
-// Android Studio preview
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

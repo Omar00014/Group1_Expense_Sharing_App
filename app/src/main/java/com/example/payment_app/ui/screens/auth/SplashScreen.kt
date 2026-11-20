@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,16 +23,20 @@ import kotlinx.coroutines.delay
 private val SplashBackground = Color(0xFF010516)
 
 @Composable
-fun SplashScreen(onFinished: () -> Unit = {}) {
+fun SplashScreen(
+    onFinished: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val currentOnFinished by rememberUpdatedState(onFinished)
 
     // Display the splash screen for 1.5 seconds
     LaunchedEffect(Unit) {
         delay(1500)
-        onFinished()
+        currentOnFinished()
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(SplashBackground),
         contentAlignment = Alignment.Center
@@ -44,7 +50,6 @@ fun SplashScreen(onFinished: () -> Unit = {}) {
     }
 }
 
-// Preview
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
