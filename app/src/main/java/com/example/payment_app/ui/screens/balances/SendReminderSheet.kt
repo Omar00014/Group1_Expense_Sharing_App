@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Displaying a Bottom Sheet 画面下からでてくるポップアップ作成
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SendReminderSheet(onDismiss: () -> Unit) {
@@ -26,7 +25,6 @@ fun SendReminderSheet(onDismiss: () -> Unit) {
     }
 }
 
-//Creating a Bottom Sheet ポップアップの中身作成
 @Composable
 fun SendReminderContent(onCancel: () -> Unit = {}, onSend: () -> Unit = {}) {
     var message by remember {

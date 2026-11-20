@@ -58,10 +58,19 @@ import com.example.payment_app.ui.screens.profile.UserProfileSaver
 import com.example.payment_app.ui.screens.receipt.ReceiptRoutes
 import com.example.payment_app.ui.screens.receipt.navigateToReceipt
 import com.example.payment_app.ui.screens.receipt.receiptScreen
+import com.example.payment_app.ui.screens.auth.LoginScreen
+import com.example.payment_app.ui.screens.auth.SignUpScreen
+import com.example.payment_app.ui.screens.auth.SplashScreen
 
 private object ActivityRoutes {
     const val HISTORY = "activity/history"
     const val NOTIFICATIONS = "activity/notifications"
+}
+
+private object AuthRoutes {
+    const val SPLASH = "auth/splash"
+    const val LOGIN = "auth/login"
+    const val SIGN_UP = "auth/signup"
 }
 
 private fun NavHostController.navigateToTab(route: String) {
@@ -118,7 +127,14 @@ fun ExpenseApp() {
     val isFullScreen = (ProfileRoutes.fullScreenRoutes + ExpenseRoutes.fullScreenRoutes + PaymentRoutes.fullScreenRoutes + GroupsRoutes.fullScreenRoutes + ReceiptRoutes.ROUTE).any { route ->
         currentRoute == route || (route.contains("?") && currentRoute?.startsWith(route.substringBefore("?")) == true)
     }
-    val showBottomBar = !isFullScreen
+
+    val isAuthScreen = currentRoute in setOf(
+        AuthRoutes.SPLASH,
+        AuthRoutes.LOGIN,
+        AuthRoutes.SIGN_UP
+    )
+
+    val showBottomBar = !isFullScreen && !isAuthScreen
 
     Scaffold(
         bottomBar = {
@@ -148,9 +164,54 @@ fun ExpenseApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = AuthRoutes.SPLASH,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // Authentication Flow
+            composable(AuthRoutes.SPLASH) {
+                SplashScreen(
+                    onFinished = {
+                        navController.navigate(AuthRoutes.LOGIN) {
+                            popUpTo(AuthRoutes.SPLASH) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(AuthRoutes.LOGIN) {
+                LoginScreen(
+                    onLogin = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(AuthRoutes.LOGIN) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onSignUp = {
+                        navController.navigate(AuthRoutes.SIGN_UP)
+                    },
+                    onForgotPassword = {
+                        // TODO: Add Forgot Password Screen
+                    }
+                )
+            }
+
+            composable(AuthRoutes.SIGN_UP) {
+                SignUpScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onSignUp = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(AuthRoutes.LOGIN) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
             composable(Screen.Home.route) {
                 HomeScreen(
                     groups = groupsState.groups,
@@ -377,7 +438,10 @@ fun ExpenseApp() {
                         onEditProfile = { navController.navigate(ProfileRoutes.EDIT) },
                         onNotificationSettings = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
                         onPaymentMethods = { navController.navigate(PaymentRoutes.PAYMENT_METHODS) },
-                        onLogout = { /* TODO */ }
+                        onLogout = { navController.navigate(AuthRoutes.LOGIN) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
                     )
                 }
                 composable(ProfileRoutes.EDIT) {

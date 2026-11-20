@@ -15,18 +15,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// 仮の色。Figmaの色コードが決まったらここだけ直す
-// TODO: replace with the actual Figma colors L20~22
-val AuthBackground = Color(0xFF1A1D23)
-val AuthFieldColor = Color(0xFFF0F0F0)
-val AuthButtonColor = Color(0xFFD9D9D9)
+// Colors shared by the auth screens (Splash, Login, Sign up)
+val DarkBackground = Color(0xFF171A22) // screen background
+val PillLight = Color(0xFFEFEFF1) // input fields, buttons and the logo circle
 
-//Logo Circle 丸いロゴ
+// Round placeholder logo. [size] sets both width and height.
 @Composable
 fun LogoCircle(size: Dp) {
     Box(
-        modifier = Modifier.size(size).background(AuthButtonColor, CircleShape),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.size(size).background(PillLight, CircleShape),
+        contentAlignment = Alignment.Center // keeps the text in the middle of the circle
     ) {
         Text(
             "Placeholder Text\nfor Logo",
@@ -37,19 +35,20 @@ fun LogoCircle(size: Dp) {
     }
 }
 
-//Auth Text Field 入力欄
+// Rounded, light-gray text input used on Login and Sign up.
+// The screen owns the text: [value] is shown, and [onValueChange] reports every edit.
 @Composable
 fun AuthTextField(placeholder: String, value: String, onValueChange: (String) -> Unit) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
+        placeholder = { Text(placeholder) }, // hint text shown while the field is empty
         singleLine = true,
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = AuthFieldColor,
-            unfocusedContainerColor = AuthFieldColor,
-            focusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = PillLight,
+            unfocusedContainerColor = PillLight,
+            focusedIndicatorColor = Color.Transparent, // hides the underline
             unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Black
@@ -58,7 +57,7 @@ fun AuthTextField(placeholder: String, value: String, onValueChange: (String) ->
     )
 }
 
-//Auth Button ボタン作成
+// Light-gray button. The caller decides what happens on click via [onClick].
 @Composable
 fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Button(
@@ -66,7 +65,7 @@ fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit 
         modifier = modifier.height(52.dp),
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AuthButtonColor,
+            containerColor = PillLight,
             contentColor = Color.Black
         )
     ) {
@@ -74,37 +73,53 @@ fun AuthButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit 
     }
 }
 
+// Figma 02 · Log in.
+// The screen only draws the UI. Navigation is passed in from ExpenseApp.kt
+// as lambdas (onLogin, onSignUp, onForgotPassword); the "= {}" defaults make
+// the preview work without them.
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    onLogin: () -> Unit = {},
+    onSignUp: () -> Unit = {},
+    onForgotPassword: () -> Unit = {}
+) {
+    // Text typed into the fields. remember keeps the value across redraws;
+    // mutableStateOf makes the screen redraw when the value changes.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Column stacks everything from top to bottom
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(AuthBackground)
+            .background(DarkBackground)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         LogoCircle(150.dp)
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(40.dp)) // empty gap between elements
         AuthTextField("Username", username) { username = it }
         Spacer(Modifier.height(16.dp))
         AuthTextField("Password", password) { password = it }
         Spacer(Modifier.height(16.dp))
+
+        // Row puts the two buttons side by side
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AuthButton("Sign Up", Modifier.weight(1f))
-            AuthButton("Forgot\nPassword?", Modifier.weight(1f))
+            // weight(1f) gives each button an equal share of the row
+            AuthButton("Sign Up", Modifier.weight(1f), onSignUp)
+            AuthButton("Forgot\nPassword?", Modifier.weight(1f), onForgotPassword)
         }
         Spacer(Modifier.height(12.dp))
-        AuthButton("Log In", Modifier.fillMaxWidth())
+        AuthButton("Log In", Modifier.fillMaxWidth(), onLogin)
     }
 }
 
+// Lets Android Studio show this screen in the Split/Design view
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

@@ -17,20 +17,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// 仮の色。Figmaの色コードが決まったらここだけ直す
-// replace with the actual Figma colors L22~25
-val BalancesBackground = Color(0xFF14171C)
-val BalancesCardColor = Color(0xFF1E2229)
-val BalancesSubText = Color(0xFF8B9099)
-val BalancesWhite = Color(0xFFF2F2F2)
+// Shared building blocks for the Balances screens (Figma 05: screens 18-20).
+// Colors are placeholders estimated from the Figma; update them here once the
+// final color codes are agreed.
+val BalancesBackground = Color(0xFF14171C) // screen background
+val BalancesCardColor = Color(0xFF1E2229) // rows and the message box
+val BalancesSubText = Color(0xFF8B9099) // gray secondary text
+val BalancesWhite = Color(0xFFF2F2F2) // pill buttons
 
-// Creating a profile image frame プロフィール画像の枠作成
+// Gray circle standing in for a profile picture. [size] sets width and height.
 @Composable
 fun BalancesAvatar(size: Dp = 40.dp) {
     Box(modifier = Modifier.size(size).background(Color(0xFFD9D9D9), CircleShape))
 }
 
-// Creating buttons ボタン作成
+// White, fully rounded button (e.g. "Remind members", "Send").
+// The caller decides what happens on click via [onClick].
 @Composable
 fun BalancesPillButton(
     text: String,
@@ -40,7 +42,7 @@ fun BalancesPillButton(
     Button(
         onClick = onClick,
         modifier = modifier.height(44.dp),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(22.dp), // half of the height, so the ends are fully round
         colors = ButtonDefaults.buttonColors(
             containerColor = BalancesWhite,
             contentColor = Color.Black
@@ -50,16 +52,17 @@ fun BalancesPillButton(
     }
 }
 
-// Creating top bar 画面上部のバー作成
+// Top row of a screen: a title on the left and an avatar on the right.
 @Composable
 fun BalancesTopBar(title: String) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // weight(1f) lets the title take all the free space, which pushes the avatar to the right edge
         Text(title, color = BalancesSubText, fontSize = 13.sp, modifier = Modifier.weight(1f))
         BalancesAvatar(32.dp)
     }
 }
 
-// Displaying the balances 残高を大きく表示する部分の作成
+// Centered headline: a small [label] above a big [amount] (e.g. "$62.00").
 @Composable
 fun BalancesHero(label: String, amount: String) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -68,6 +71,7 @@ fun BalancesHero(label: String, amount: String) {
     }
 }
 
+// Section heading with an optional gray text on the right (e.g. "Group balances" / "4 members").
 @Composable
 fun BalancesSectionLabel(left: String, right: String = "") {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -78,13 +82,15 @@ fun BalancesSectionLabel(left: String, right: String = "") {
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f)
         )
+        // only draw the right-hand text when one was given
         if (right.isNotEmpty()) {
             Text(right, color = BalancesSubText, fontSize = 12.sp)
         }
     }
 }
 
-// Displaying friend and transaction information 友達や取引の情報を表示させるコード
+// One card in a list: avatar, name and subtitle on the left,
+// amount and a small note on the right. [noteUnderlined] makes the note look like a link ("Remind >").
 @Composable
 fun BalancesRow(
     title: String,
@@ -96,16 +102,20 @@ fun BalancesRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BalancesCardColor, RoundedCornerShape(12.dp))
+            .background(BalancesCardColor, RoundedCornerShape(12.dp)) // background goes before padding, so the padding sits inside the card
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BalancesAvatar()
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(12.dp)) // empty gap between avatar and text
+
+        // Left column: name and subtitle (takes the free space)
         Column(modifier = Modifier.weight(1f)) {
             Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Text(subtitle, color = BalancesSubText, fontSize = 11.sp)
         }
+
+        // Right column: amount and note, aligned to the right edge
         Column(horizontalAlignment = Alignment.End) {
             Text(amount, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Text(
