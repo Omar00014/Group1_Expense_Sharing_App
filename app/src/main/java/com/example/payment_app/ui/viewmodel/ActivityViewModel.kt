@@ -24,19 +24,12 @@ data class ActivityUiState(
 )
 
 class ActivityViewModel(
-    private val repository: OverviewRepository = FakeOverviewRepository(),
-) : ViewModel() {
-
+    private val repository: OverviewRepository = FakeOverviewRepository()) : ViewModel() {
     private val allEntries: List<ActivityEntry> = repository.activity()
+    private val _uiState = MutableStateFlow(ActivityUiState(entries = allEntries,
+        isShowingCachedData = repository.isShowingCachedData()))
 
-    private val _uiState = MutableStateFlow(
-        ActivityUiState(
-            entries = allEntries,
-            isShowingCachedData = repository.isShowingCachedData(),
-        )
-    )
     val uiState: StateFlow<ActivityUiState> = _uiState.asStateFlow()
-
     fun onTypeFilterChange(filter: ActivityTypeFilter) {
         _uiState.update { it.copy(typeFilter = filter, entries = filterEntries(allEntries, filter, it.groupFilterId)) }
     }
