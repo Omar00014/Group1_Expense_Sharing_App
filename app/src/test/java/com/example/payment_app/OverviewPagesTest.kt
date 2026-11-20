@@ -14,6 +14,7 @@ import com.example.payment_app.ui.components.toCents
 import com.example.payment_app.ui.screens.groups.sampleGroups
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 
 class FormattingTest {
@@ -128,6 +129,9 @@ class ActivityViewModelTest {
 }
 
 class NotificationsViewModelTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     @Test
     fun startsWithUnreadNotifications() {
         val state = NotificationsViewModel(FakeOverviewRepository()).uiState.value
